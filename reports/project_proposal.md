@@ -7,7 +7,7 @@ Model Overview
 For our project, we plan to reproduce the experiment carried out in the paper “A high-resolution human contact network for infectious disease transmission” (Salathé et al, 2010).  In the paper, the authors gather data on close-proximity interactions (CPI’s) in a high school, and use the data to build a graph-based model of potential disease spread.  We plan to reproduce the graph-based segment of this, using their algorithm to build the graph and then running a time-step-based SEIR model using their constants.  Next, we can improve on the model; we will find a potentially-useful improvement while we analyze the paper and reproduce the original model.
 
 Graph Mock-Up
-![Graph Mock-Up](link TBD)
+![Graph Mock-Up]( https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/graph-mockup-cropped.png)
 
 Analysis Mock-Up
 We find that, in [\_]% of cases, the infection never spreads beyond the first infected person.  In the remaining [\_]% of cases, the infection [almost always] spreads to most of the school, peaking on average at [\_]% infected, and eventually infecting [\_]% of the population.  If 20% of the population is vaccinated (i.e. immune from the beginning), then the infection only spreads [\_]% of the time, and infects [\_]% on average.
