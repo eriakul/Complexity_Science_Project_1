@@ -24,7 +24,7 @@ Yes. Good job recreating and then invalidating their model.
 
 I assume that your analysis on the variance of entropy based on initial conditions was your extension. 
 
-> This is not what we would expect from the real world. In reality two systems which start with different entropy will approach the > > same equilibrium and hover around it with the same variance, if they have the same temperature. In this model it is as if initial > entropy and temperature are coupled, and there is no way to uncouple them. This casts some doubt on the explanatory value of the model.
+> This is not what we would expect from the real world. In reality two systems which start with different entropy will approach the same equilibrium and hover around it with the same variance, if they have the same temperature. In this model it is as if initial > entropy and temperature are coupled, and there is no way to uncouple them. This casts some doubt on the explanatory value of the model.
 
 This last part was great. 
 
