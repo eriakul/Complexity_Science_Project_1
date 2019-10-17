@@ -13,10 +13,13 @@ import csv
 import networkx as nx
 import numpy as np
 from enum import Enum
-from random import choice
+from numpy.random import choice
 
 
 def load_data_from_drive():
+    """
+    Loads graph data from Google Drive.
+    """
     edges = {}
     gdown.download(
         "https://drive.google.com/uc?id=1vBUOcQVh1EDY91xtW4fZjowbN8RFQ5Br",
@@ -44,8 +47,6 @@ def load_data_from_drive():
     return edges_list, people
 
 
-from numpy.random import choice
-
 edges, people = load_data_from_drive()
 
 
@@ -56,13 +57,16 @@ class Status(Enum):
     R = "recovered"
 
 
-class School(Graphs):
+class School:
     def __init__(self, edges, people):
         self.G = nx.Graph()
-        G.add_nodes_from(
-            [(name, dict(state=Status.S, job=job)) for name, job in people.items()]
+        self.G.add_nodes_from(
+            [(name, {"state": Status.S, "job": job}) for name, job in people.items()]
         )
-        G.add_weighted_edges_from(edges)
+        self.G.add_weighted_edges_from(edges)
+
+        # Keeps a list of people who are sick (exposed or infectious), so
+        # we know who to look at during step().
         self.sick_nodes = []
 
     def randomly_expose(self):
@@ -79,27 +83,38 @@ class School(Graphs):
         p = 1 - np.power(1 - 0.003, ((weight / 4) if showSymptoms else weight))
         return np.random.random() < p
 
-    def start_showing_symptoms_p(self):
-        p = 0.5
-        return np.random.random() < p
+    def get_incubation_period(self):
+        """
+        From the paper:
+            The incubation period distribution is modeled by
+            a right-shifted Weibull distribution with a
+            fixed offset of half a day [power
+            parameter = 2.21, scale parameter = 1.10]
+        """
+        # TODO: Is this in half-days?
+        return 1 + (1.10 * np.random.weibull(2.21))
 
     def step(self):
         toExpose = set()
         toInfect = set()
         toRecover = set()
 
-        for sickNode in self.sick_nodes:
-            state = self.G.node[sickNode]["state"]
-            for neighbor, weight in self.get_neighbors_weights(sickNode):
+        for index in self.sick_nodes:
+            sick_node = self.G.node[index]
+            state = sick_node["state"]
+
+            for neighbor, weight in self.get_neighbors_weights(index):
                 neighborState = self.G.node[neighbor]["state"]
                 if neighborState == Status.S:
                     if self.transmit_p(weight, showSymptoms=state == Status.I):
                         toExpose.add(neighbor)
+
             if state == Status.E:
-                if self.start_showing_symptoms_p():
-                    toInfect.add(sickNode)
-            if state == Status.I:
-                toRecover.add(sickNode)
+                sick_node["incubation_period"] -= 1
+                if sick_node["incubation_period"] < 0:
+                    toInfect.add(index)
+            elif state == Status.I:
+                toRecover.add(index)  # TODO: Don't get better after just one day
 
         for node in toExpose:
             self.expose(node)
@@ -118,6 +133,7 @@ class School(Graphs):
 
     def expose(self, index):
         self.G.node[index]["state"] = Status.E
+        self.G.node[index]["incubation_period"] = self.get_incubation_period()
         self.sick_nodes.append(index)
 
     def infect(self, index):
