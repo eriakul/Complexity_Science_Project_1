@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Project (1)
 
@@ -11,11 +12,11 @@ import gdown
 import csv
 import networkx as nx
 import numpy as np
+from enum import Enum
 from random import choice
 
 
 def load_data_from_drive():
-
     edges = {}
     gdown.download(
         "https://drive.google.com/uc?id=1vBUOcQVh1EDY91xtW4fZjowbN8RFQ5Br",
@@ -46,88 +47,39 @@ def load_data_from_drive():
 from numpy.random import choice
 
 edges, people = load_data_from_drive()
-# edges = edges[:100]
-# print(edges)
-# eIndexes = choice(len(edges), 100)
-# edges = np.array(edges)
-# edges = edges[[eIndexes]]
-# print(edges)
 
 
-class Graphs:
-    def make_data_driven_graph(self, edges, people, status):
-        G = nx.Graph()
-        G.add_nodes_from(
-            [(name, dict(state=status.S, job=job)) for name, job in people.items()]
-        )
-        G.add_weighted_edges_from(edges)
-        #       G.remove_nodes_from(list(nx.isolates(G)))
-        return G
-
-    def adjacent_edges(self, nodes, halfk):
-        n = len(nodes)
-        for i, u in enumerate(nodes):
-            for j in range(i + 1, i + halfk + 1):
-                v = nodes[j % n]
-                yield u, v
-
-    def make_ring_lattice(self, n, k):
-        G = nx.Graph()
-        nodes = range(n)
-        G.add_nodes_from(nodes)
-        G.add_edges_from(self.adjacent_edges(nodes, k // 2))
-        return G
-
-    def make_ws_graph(self, n, k, p):
-        def flip(p):
-            return np.random.random() < p
-
-        G = self.make_ring_lattice(n, k)
-        nodes = set(G)
-        for u, v in G.edges():
-            if flip(p):
-                choices = nodes - {u} - set(G[u])
-                new_v = np.random.choice(list(choices))
-                G.remove_edge(u, v)
-                G.add_edge(u, new_v)
-        return G
-
-
-class Status:
-    def __init__(self):
-        self.S = "susceptible"
-        self.E = "exposed"
-        self.I = "infectious"
-        self.R = "recovered"
+class Status(Enum):
+    S = "susceptible"
+    E = "exposed"
+    I = "infectious"
+    R = "recovered"
 
 
 class School(Graphs):
     def __init__(self, edges, people):
-        super()
-        self.status = Status()
-
-        self.G = self.make_data_driven_graph(edges, people, self.status)
-        self.sickNodes = []
+        self.G = nx.Graph()
+        G.add_nodes_from(
+            [(name, dict(state=Status.S, job=job)) for name, job in people.items()]
+        )
+        G.add_weighted_edges_from(edges)
+        self.sick_nodes = []
 
     def randomly_expose(self):
-        unluckyOne = choice(self.G.nodes)
-        print("Person {} has become exposed to the disease.".format(unluckyOne))
-        self.expose(unluckyOne)
+        unlucky_one = choice(self.G.nodes)
+        print("Person {} has become exposed to the disease.".format(unlucky_one))
+        self.expose(unlucky_one)
 
     def transmit_p(self, weight, showSymptoms=False):
         """
-      Randomly returns True or False with a probability that models the
-      chance of an influenza infection travelling along a link with a
-      given weight, measured in CPRs (20s, or 1/3 minutes).
-      """
-        p = 1 - np.power(1 - 0.003, weight)
-
-        if showSymptoms:
-            p = 0.25 * p
-
+        Randomly returns True or False with a probability that models the
+        chance of an influenza infection travelling along a link with a
+        given weight, measured in CPRs (20s, or 1/3 minutes).
+        """
+        p = 1 - np.power(1 - 0.003, ((weight / 4) if showSymptoms else weight))
         return np.random.random() < p
 
-    def start_showing_symptoms(self):
+    def start_showing_symptoms_p(self):
         p = 0.5
         return np.random.random() < p
 
@@ -136,17 +88,17 @@ class School(Graphs):
         toInfect = set()
         toRecover = set()
 
-        for sickNode in self.sickNodes:
+        for sickNode in self.sick_nodes:
             state = self.G.node[sickNode]["state"]
             for neighbor, weight in self.get_neighbors_weights(sickNode):
                 neighborState = self.G.node[neighbor]["state"]
-                if neighborState == self.status.S:
-                    if self.transmit_p(weight, showSymptoms=state == self.status.I):
+                if neighborState == Status.S:
+                    if self.transmit_p(weight, showSymptoms=state == Status.I):
                         toExpose.add(neighbor)
-            if state == self.status.E:
-                if self.start_showing_symptoms():
+            if state == Status.E:
+                if self.start_showing_symptoms_p():
                     toInfect.add(sickNode)
-            if state == self.status.I:
+            if state == Status.I:
                 toRecover.add(sickNode)
 
         for node in toExpose:
@@ -165,15 +117,15 @@ class School(Graphs):
         return arr
 
     def expose(self, index):
-        self.G.node[index]["state"] = self.status.E
-        self.sickNodes.append(index)
+        self.G.node[index]["state"] = Status.E
+        self.sick_nodes.append(index)
 
     def infect(self, index):
-        self.G.node[index]["state"] = self.status.I
+        self.G.node[index]["state"] = Status.I
 
     def recover(self, index):
-        self.G.node[index]["state"] = self.status.R
-        self.sickNodes.remove(index)
+        self.G.node[index]["state"] = Status.R
+        self.sick_nodes.remove(index)
 
     def get_colors(self):
         def color(state):
