@@ -94,6 +94,21 @@ class School:
         # TODO: Is this in half-days?
         return 1 + (1.10 * np.random.weibull(2.21))
 
+    def recover_p(self, time_infected):
+        """
+        From the paper:
+            Once an individual is infectious,
+            recovery occurs withaprobability of
+            1−0.95^t per time step, where t represents
+            the number of timesteps spent in the infectious state [...]
+            After 12 d in the infectiousclass, an individual will recover 
+            if recovery has not occurred before that time.
+        """
+        if time_infected >= 12:
+            return True
+        p = 1 - np.power(0.95, time_infected)
+        return np.random.random() < p
+
     def step(self):
         toExpose = set()
         toInfect = set()
@@ -114,7 +129,8 @@ class School:
                 if sick_node["incubation_period"] < 0:
                     toInfect.add(index)
             elif state == Status.I:
-                toRecover.add(index)  # TODO: Don't get better after just one day
+                if recover_p(sick_node["time_infected"]):
+                    toRecover.add(index)
 
         for node in toExpose:
             self.expose(node)
@@ -138,6 +154,7 @@ class School:
 
     def infect(self, index):
         self.G.node[index]["state"] = Status.I
+        self.G.node[index]["time_infected"] = 0
 
     def recover(self, index):
         self.G.node[index]["state"] = Status.R
