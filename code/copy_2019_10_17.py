@@ -22,6 +22,34 @@ import networkx as nx
 from enum import Enum
 
 
+class State(Enum):
+    S = "susceptible"
+    E = "exposed"
+    I = "infectious"
+    R = "recovered"
+
+
+all_states = [State.S, State.E, State.I, State.R]
+
+
+class Job(Enum):
+    S = "student"
+    T = "teacher"
+    A = "staff"
+    O = "other"
+
+
+all_jobs = [Job.S, Job.T, Job.A]
+
+
+def str_to_job(s):
+    return {"student": Job.S, "teacher": Job.T, "staff": Job.A, "other": Job.O}[s]
+
+
+# List of all pairs of state and student/teacher status, e.g. "susceptible teachers'
+all_groups = {(s, j): None for s in all_states for j in all_jobs}
+
+
 def load_data_from_drive():
     """
     Loads graph data from Google Drive.
@@ -40,11 +68,12 @@ def load_data_from_drive():
             edges[pair] = edges.get(pair, 0) + (float(row[2]) / 3)
 
     people = {}
-    gdown.download(
-        "https://drive.google.com/uc?id=10e8tFloUoUpV8UUf863blJBk8eTrSUih",
-        "person_descriptions.txt",
-        quiet=True,
-    )
+    if not os.path.exists("person_descriptions.txt"):
+        gdown.download(
+            "https://drive.google.com/uc?id=10e8tFloUoUpV8UUf863blJBk8eTrSUih",
+            "person_descriptions.txt",
+            quiet=True,
+        )
     with open("person_descriptions.txt") as f:
         c = csv.reader(f, delimiter="\t")
         for row in c:
@@ -55,20 +84,6 @@ def load_data_from_drive():
 
 
 edges, people = load_data_from_drive()
-
-
-class State(Enum):
-    S = "susceptible"
-    E = "exposed"
-    I = "infectious"
-    R = "recovered"
-
-
-# List of all pairs of state and student/teacher status, e.g. "susceptible teachers'
-# TODO: Should this be a dict?
-all_groups = [
-    (s, g) for s in [State.S, State.E, State.I, State.R] for g in ["student", "teacher"]
-]
 
 
 def state_color(state):
@@ -86,7 +101,10 @@ class School:
     def __init__(self, edges, people):
         self.G = nx.Graph()
         self.G.add_nodes_from(
-            [(name, {"state": State.S, "job": job}) for name, job in people.items()]
+            [
+                (name, {"state": State.S, "job": str_to_job(job)})
+                for name, job in people.items()
+            ]
         )
         self.G.add_weighted_edges_from(edges)
 
@@ -210,7 +228,7 @@ class School:
         return global_state
 
     def get_global_state_jobs(self):
-        global_state = {g: 0 for group in all_groups}
+        global_state = {group: 0 for group in all_groups}
         for index, attributes in self.G.nodes(data=True):
             state = attributes["state"]
             job = attributes["job"]
@@ -243,7 +261,14 @@ if __name__ == "__main__":
             histories[group].append(global_state[(state, group)])
 
         # If nobody is exposed or infected, the epidemic is over.
-        # TODO: This
+        if all(
+            map(
+                lambda g: global_state(g) == 0,
+                [(s, j) for s in [State.E, State.I] for j in all_jobs],
+            )
+        ):
+            print("The epidemic is over.")
+            break
 
         Sch.step(i % 2 == 0 and (i // 2) % 7 < 5)
 
