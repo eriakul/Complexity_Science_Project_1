@@ -10,6 +10,7 @@ Original file is located at
 
 # TODO:
 # Make sure the 75% and 100% drops in connections are handled properly
+# Clean the graph (better legend, combine lines, scales in % instead of pop)
 # Stop the simulation when nobody is infectious, or nobody is susceptible
 
 import os
@@ -273,9 +274,7 @@ if __name__ == "__main__":
         ys = histories[(state, job)]
         color = state_color(state)
         style = {Job.S: "-", Job.T: ":", Job.A: "--", Job.O: "-."}[job]
-        ax.plot(
-            time, ys, style, color=color, label=state.value
-        )  # TODO: Capitalize names and add job
+        ax.plot(time, ys, style, color=color, label=state.value + ", " + job.value)
 
     ax.legend()
     plt.title("SEIR High School Model - Instantaneous Time Steps")
