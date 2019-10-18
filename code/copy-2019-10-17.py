@@ -204,13 +204,6 @@ class School:
         )
 
 
-S = School(edges, people)
-S.randomly_expose()
-
-print(S.get_global_state_jobs())
-S.step()
-
-
 steps = 30
 time = range(steps)
 Sch = School(edges, people)
