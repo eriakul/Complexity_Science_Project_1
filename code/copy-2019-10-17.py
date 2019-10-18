@@ -91,13 +91,13 @@ class School:
         print("Person {} has become exposed to the disease.".format(unlucky_one))
         self.expose(unlucky_one)
 
-    def transmit_p(self, weight, showSymptoms=False):
+    def transmit_p(self, weight, show_symptoms=False):
         """
         Randomly returns True or False with a probability that models the
         chance of an influenza infection travelling along a link with a
         given weight, measured in CPRs (20s, or 1/3 minutes).
         """
-        p = 1 - np.power(1 - 0.003, ((weight / 4) if showSymptoms else weight))
+        p = 1 - np.power(1 - 0.003, ((weight / 4) if show_symptoms else weight))
         return np.random.random() < p
 
     def get_incubation_period(self):
@@ -118,7 +118,7 @@ class School:
             recovery occurs withaprobability of
             1−0.95^t per time step, where t represents
             the number of timesteps spent in the infectious state [...]
-            After 12 d in the infectiousclass, an individual will recover 
+            After 12 d in the infectiousclass, an individual will recover
             if recovery has not occurred before that time.
         """
         if time_infected >= 12:
@@ -127,9 +127,9 @@ class School:
         return np.random.random() < p
 
     def step(self):
-        toExpose = set()
-        toInfect = set()
-        toRecover = set()
+        to_expose = set()
+        to_infect = set()
+        to_recover = set()
 
         for index in self.sick_nodes:
             sick_node = self.G.node[index]
@@ -138,26 +138,26 @@ class School:
             for neighbor, weight in self.get_neighbors_weights(index):
                 neighborState = self.G.node[neighbor]["state"]
                 if neighborState == State.S:
-                    if self.transmit_p(weight, showSymptoms=state == State.I):
-                        toExpose.add(neighbor)
+                    if self.transmit_p(weight, show_symptoms=(state == State.I)):
+                        to_expose.add(neighbor)
 
             if state == State.E:
                 sick_node["incubation_period"] -= 1
                 if sick_node["incubation_period"] < 0:
-                    toInfect.add(index)
+                    to_infect.add(index)
             elif state == State.I:
                 if self.recover_p(sick_node["time_infected"]):
-                    toRecover.add(index)
+                    to_recover.add(index)
                 else:
                     sick_node["time_infected"] += 1
 
-        for node in toExpose:
+        for node in to_expose:
             self.expose(node)
 
-        for node in toInfect:
+        for node in to_infect:
             self.infect(node)
 
-        for node in toRecover:
+        for node in to_recover:
             self.recover(node)
 
     def get_neighbors_weights(self, node):
@@ -184,21 +184,21 @@ class School:
         return [state_color(state) for state in states]
 
     def get_global_state(self):
-        globalState = {}
+        global_state = {}
         for index, attributes in self.G.nodes(data=True):
             state = attributes["state"]
-            globalState[State] = globalState.get(state, 0) + 1
+            global_state[State] = global_state.get(state, 0) + 1
 
-        return globalState
+        return global_state
 
     def get_global_state_jobs(self):
-        globalState = {}
+        global_state = {}
         for index, attributes in self.G.nodes(data=True):
             state = attributes["state"]
             job = attributes["job"]
-            globalState[(state, job)] = globalState.get((state, job), 0) + 1
+            global_state[(state, job)] = global_state.get((state, job), 0) + 1
 
-        return globalState
+        return global_state
 
     def visualize(self):
         nx.draw_networkx(
