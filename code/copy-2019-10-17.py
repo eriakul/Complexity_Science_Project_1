@@ -11,6 +11,7 @@ Original file is located at
 # TODO:
 # Make sure the 75% and 100% drops in connections are handled properly
 
+import matplotlib.pyplot as plt
 import gdown
 import csv
 import networkx as nx
@@ -209,7 +210,6 @@ print(S.get_global_state_jobs())
 S.step()
 # S.visualize()
 
-import matplotlib.pyplot as plt
 
 steps = 15
 time = range(steps)
@@ -244,56 +244,9 @@ for state in [State.S, State.E, State.I, State.R]:
         )  # Half-time so it's days.  TODO: make state names nicer and label groups
 
 
-"""
-sLine = ax.plot(time, S, "g", label="Susceptible")
-eLine = ax.plot(time, E, "y", label="Exposed")
-iLine = ax.plot(time, I, "r", label="Infectious")
-rLine = ax.plot(time, R, "c", label="Recovered")
-
-
-sLinet = ax.plot(time, St, "g:")
-eLinet = ax.plot(time, Et, "y:")
-iLinet = ax.plot(time, It, "r:")
-rLinet = ax.plot(time, Rt, "c:")
-"""
-
-
 ax.legend()
 plt.title("SEIR High School Model - Instantaneous Time Steps")
 plt.xlabel("Time (days)")
-plt.ylabel("People")
-
-plt.show()
-
-steps = 10
-
-time = range(steps)
-argAnts = []
-carpAnts = []
-
-Sch = School(edges, people)
-Sch.randomly_expose()
-
-for i in time:
-    state = Sch.get_global_state()
-    S.append(state.get("susceptible", 0))
-    E.append(state.get("exposed", 0))
-    I.append(state.get("infectious", 0))
-    R.append(state.get("recovered", 0))
-    Sch.step()
-
-
-fig, ax = plt.subplots()
-
-sLine = ax.plot(time, S, label="Susceptible")
-eLine = ax.plot(time, E, label="Exposed")
-iLine = ax.plot(time, I, label="Infectious")
-rLine = ax.plot(time, R, label="Recovered")
-
-
-ax.legend()
-plt.title("SEIR High School Model - Instantaneous Time Steps")
-plt.xlabel("Time Steps - 12 hr Each")
 plt.ylabel("People")
 
 plt.show()
