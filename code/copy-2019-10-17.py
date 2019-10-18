@@ -121,7 +121,7 @@ class School:
         """
         if time_infected >= 12:
             return True
-        p = 1 - np.power(0.95, time_infected)
+        p = 1.0 - np.power(0.95, time_infected)
         return np.random.random() < p
 
     def step(self):
@@ -146,6 +146,8 @@ class School:
             elif state == State.I:
                 if self.recover_p(sick_node["time_infected"]):
                     toRecover.add(index)
+                else:
+                    sick_node["time_infected"] += 1
 
         for node in toExpose:
             self.expose(node)
@@ -209,7 +211,7 @@ print(S.get_global_state_jobs())
 S.step()
 
 
-steps = 15
+steps = 30
 time = range(steps)
 Sch = School(edges, people)
 Sch.randomly_expose()
