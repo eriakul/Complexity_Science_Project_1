@@ -64,6 +64,13 @@ class State(Enum):
     R = "recovered"
 
 
+# List of all pairs of state and student/teacher status, e.g. "susceptible teachers'
+# TODO: Should this be a dict?
+all_groups = [
+    (s, g) for s in [State.S, State.E, State.I, State.R] for g in ["student", "teacher"]
+]
+
+
 def state_color(state):
     if state == State.S:
         return "green"
@@ -203,11 +210,11 @@ class School:
         return global_state
 
     def get_global_state_jobs(self):
-        global_state = {}
+        global_state = {g: 0 for group in all_groups}
         for index, attributes in self.G.nodes(data=True):
             state = attributes["state"]
             job = attributes["job"]
-            global_state[(state, job)] = global_state.get((state, job), 0) + 1
+            global_state[(state, job)] += 1
 
         return global_state
 
@@ -218,39 +225,38 @@ class School:
 
 
 if __name__ == "__main__":
-    steps = 30
     Sch = School(edges, people)
 
     time = []  # Times of steps, in days
-    histories = {}  # How many people in 'group' were in 'state'?
-    for state in [State.S, State.E, State.I, State.R]:
-        for group in ["student", "teacher"]:
-            histories[(state, group)] = []
+    histories = {
+        g: [] for g in all_groups
+    }  # How many people in 'group' were in 'state'?
 
     Sch.randomly_expose()
 
-    for i in range(steps):
-        time.append(i / 2)  # Each step is a half-day
+    for _ in range(100):  # Length is capped at that many ticks
+        time.append(time[-1] + 0.5 if time else 0)
 
         global_state = Sch.get_global_state_jobs()
 
-        for state in [State.S, State.E, State.I, State.R]:
-            for group in ["student", "teacher"]:
-                histories[(state, group)].append(global_state.get((state, group), 0))
+        for group in all_groups:
+            histories[group].append(global_state[(state, group)])
+
+        # If nobody is exposed or infected, the epidemic is over.
+        # TODO: This
 
         Sch.step(i % 2 == 0 and (i // 2) % 7 < 5)
 
     fig, ax = plt.subplots()
 
     lines = []
-    for state in [State.S, State.E, State.I, State.R]:
-        for group in ["student", "teacher"]:
-            ys = histories[(state, group)]
-            color = state_color(state)
-            style = "-" if group == "student" else ":"
-            ax.plot(
-                time, ys, style, color=color, label=state.value
-            )  # TODO: Capitalize names
+    for state, group in all_groups:
+        ys = histories[(state, group)]
+        color = state_color(state)
+        style = "-" if group == "student" else ":"
+        ax.plot(
+            time, ys, style, color=color, label=state.value
+        )  # TODO: Capitalize names
 
     ax.legend()
     plt.title("SEIR High School Model - Instantaneous Time Steps")
