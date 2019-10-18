@@ -8,6 +8,9 @@ Original file is located at
     https://colab.research.google.com/drive/1qHE_7uzUuapyvPopHZasglpOhaXCB2EG
 """
 
+# TODO:
+# Make sure the 75% and 100% drops in connections are handled properly
+
 import gdown
 import csv
 import networkx as nx
@@ -50,28 +53,29 @@ def load_data_from_drive():
 edges, people = load_data_from_drive()
 
 
-class Status(Enum):
+class State(Enum):
     S = "susceptible"
     E = "exposed"
     I = "infectious"
     R = "recovered"
 
-    def color(self, status):
-        if state == Status.S:
-            return "green"
-        elif state == Status.E:
-            return "yellow"
-        elif state == Status.I:
-            return "red"
-        elif state == Status.R:
-            return "blue"
+
+def state_color(state):
+    if state == State.S:
+        return "green"
+    elif state == State.E:
+        return "yellow"
+    elif state == State.I:
+        return "red"
+    elif state == State.R:
+        return "blue"
 
 
 class School:
     def __init__(self, edges, people):
         self.G = nx.Graph()
         self.G.add_nodes_from(
-            [(name, {"state": Status.S, "job": job}) for name, job in people.items()]
+            [(name, {"state": State.S, "job": job}) for name, job in people.items()]
         )
         self.G.add_weighted_edges_from(edges)
 
@@ -130,15 +134,15 @@ class School:
 
             for neighbor, weight in self.get_neighbors_weights(index):
                 neighborState = self.G.node[neighbor]["state"]
-                if neighborState == Status.S:
-                    if self.transmit_p(weight, showSymptoms=state == Status.I):
+                if neighborState == State.S:
+                    if self.transmit_p(weight, showSymptoms=state == State.I):
                         toExpose.add(neighbor)
 
-            if state == Status.E:
+            if state == State.E:
                 sick_node["incubation_period"] -= 1
                 if sick_node["incubation_period"] < 0:
                     toInfect.add(index)
-            elif state == Status.I:
+            elif state == State.I:
                 if self.recover_p(sick_node["time_infected"]):
                     toRecover.add(index)
 
@@ -158,21 +162,21 @@ class School:
         return arr
 
     def expose(self, index):
-        self.G.node[index]["state"] = Status.E
+        self.G.node[index]["state"] = State.E
         self.G.node[index]["incubation_period"] = self.get_incubation_period()
         self.sick_nodes.append(index)
 
     def infect(self, index):
-        self.G.node[index]["state"] = Status.I
+        self.G.node[index]["state"] = State.I
         self.G.node[index]["time_infected"] = 0
 
     def recover(self, index):
-        self.G.node[index]["state"] = Status.R
+        self.G.node[index]["state"] = State.R
         self.sick_nodes.remove(index)
 
     def get_colors(self):
         states = list([data["state"] for i, data in self.G.nodes(data=True)])
-        return [Status.color(state) for state in states]
+        return [state_color(state) for state in states]
 
     def get_global_state(self):
         globalState = {}
@@ -219,16 +223,11 @@ for state in [State.S, State.E, State.I, State.R]:
 
 
 for i in time:
-    state = Sch.get_global_state_jobs()
+    global_state = Sch.get_global_state_jobs()
 
     for state in [State.S, State.E, State.I, State.R]:
         for group in ["student", "teacher"]:
-            histories[(state, group)].append(state.get((state, group), 0))
-
-    histories = {}
-    for status in "SEIR":
-        for group in "st":
-            histories[status + group] = []
+            histories[(state, group)].append(global_state.get((state, group), 0))
 
     Sch.step()
 
@@ -238,13 +237,14 @@ lines = []
 for state in [State.S, State.E, State.I, State.R]:
     for group in ["student", "teacher"]:
         ys = histories[(state, group)]
-        color = State.color(state)
+        color = state_color(state)
         style = "-" if group == "student" else ":"
         ax.plot(
-            time, ys, style, color=color, label=state
-        )  # TODO: Capitalize state and/or omit half the labels
+            np.array(time) / 2, ys, style, color=color, label=state
+        )  # Half-time so it's days.  TODO: make state names nicer and label groups
 
 
+"""
 sLine = ax.plot(time, S, "g", label="Susceptible")
 eLine = ax.plot(time, E, "y", label="Exposed")
 iLine = ax.plot(time, I, "r", label="Infectious")
@@ -255,16 +255,15 @@ sLinet = ax.plot(time, St, "g:")
 eLinet = ax.plot(time, Et, "y:")
 iLinet = ax.plot(time, It, "r:")
 rLinet = ax.plot(time, Rt, "c:")
+"""
 
 
 ax.legend()
 plt.title("SEIR High School Model - Instantaneous Time Steps")
-plt.xlabel("Time Steps - 12 hr Each")
+plt.xlabel("Time (days)")
 plt.ylabel("People")
 
 plt.show()
-
-import matplotlib.pyplot as plt
 
 steps = 10
 
