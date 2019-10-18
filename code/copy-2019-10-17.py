@@ -56,6 +56,16 @@ class Status(Enum):
     I = "infectious"
     R = "recovered"
 
+    def color(self, status):
+        if state == Status.S:
+            return "green"
+        elif state == Status.E:
+            return "yellow"
+        elif state == Status.I:
+            return "red"
+        elif state == Status.R:
+            return "blue"
+
 
 class School:
     def __init__(self, edges, people):
@@ -129,7 +139,7 @@ class School:
                 if sick_node["incubation_period"] < 0:
                     toInfect.add(index)
             elif state == Status.I:
-                if recover_p(sick_node["time_infected"]):
+                if self.recover_p(sick_node["time_infected"]):
                     toRecover.add(index)
 
         for node in toExpose:
@@ -161,24 +171,14 @@ class School:
         self.sick_nodes.remove(index)
 
     def get_colors(self):
-        def color(state):
-            if state == "susceptible":
-                return "green"
-            elif state == "exposed":
-                return "yellow"
-            if state == "infectious":
-                return "red"
-            if state == "recovered":
-                return "blue"
-
         states = list([data["state"] for i, data in self.G.nodes(data=True)])
-        return list(map(color, states))
+        return [Status.color(state) for state in states]
 
     def get_global_state(self):
         globalState = {}
         for index, attributes in self.G.nodes(data=True):
             state = attributes["state"]
-            globalState[state] = globalState.get(state, 0) + 1
+            globalState[State] = globalState.get(state, 0) + 1
 
         return globalState
 
@@ -212,33 +212,38 @@ time = range(steps)
 Sch = School(edges, people)
 Sch.randomly_expose()
 
-S = []
-E = []
-I = []
-R = []
-
-St = []
-Et = []
-It = []
-Rt = []
+histories = {}
+for state in [State.S, State.E, State.I, State.R]:
+    for group in ["student", "teacher"]:
+        histories[(state, group)] = []
 
 
 for i in time:
     state = Sch.get_global_state_jobs()
 
-    S.append(state.get(("susceptible", "student"), 0))
-    E.append(state.get(("exposed", "student"), 0))
-    I.append(state.get(("infectious", "student"), 0))
-    R.append(state.get(("recovered", "student"), 0))
+    for state in [State.S, State.E, State.I, State.R]:
+        for group in ["student", "teacher"]:
+            histories[(state, group)].append(state.get((state, group), 0))
 
-    St.append(state.get(("susceptible", "teacher"), 0))
-    Et.append(state.get(("exposed", "teacher"), 0))
-    It.append(state.get(("infectious", "teacher"), 0))
-    Rt.append(state.get(("recovered", "teacher"), 0))
+    histories = {}
+    for status in "SEIR":
+        for group in "st":
+            histories[status + group] = []
 
     Sch.step()
 
 fig, ax = plt.subplots()
+
+lines = []
+for state in [State.S, State.E, State.I, State.R]:
+    for group in ["student", "teacher"]:
+        ys = histories[(state, group)]
+        color = State.color(state)
+        style = "-" if group == "student" else ":"
+        ax.plot(
+            time, ys, style, color=color, label=state
+        )  # TODO: Capitalize state and/or omit half the labels
+
 
 sLine = ax.plot(time, S, "g", label="Susceptible")
 eLine = ax.plot(time, E, "y", label="Exposed")
