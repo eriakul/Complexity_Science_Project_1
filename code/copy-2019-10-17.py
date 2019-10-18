@@ -200,7 +200,6 @@ class School:
         nx.draw_networkx(
             self.G, node_color=self.get_colors(), node_size=5, with_labels=False
         )
-        print(self.get_global_state())
 
 
 S = School(edges, people)
@@ -208,7 +207,6 @@ S.randomly_expose()
 
 print(S.get_global_state_jobs())
 S.step()
-# S.visualize()
 
 
 steps = 15
@@ -250,5 +248,3 @@ plt.xlabel("Time (days)")
 plt.ylabel("People")
 
 plt.show()
-
-Sch.visualize()
