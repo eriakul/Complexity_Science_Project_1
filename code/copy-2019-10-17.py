@@ -207,17 +207,19 @@ class School:
 
 
 steps = 30
-time = range(steps)
 Sch = School(edges, people)
 Sch.randomly_expose()
 
-histories = {}
+time = []  # Times of steps, in days
+histories = {}  # How many people in 'group' were in 'state'?
 for state in [State.S, State.E, State.I, State.R]:
     for group in ["student", "teacher"]:
         histories[(state, group)] = []
 
 
-for i in time:
+for i in range(steps):
+    time.append(i / 2)  # Each step is a half-day
+
     global_state = Sch.get_global_state_jobs()
 
     for state in [State.S, State.E, State.I, State.R]:
@@ -234,9 +236,7 @@ for state in [State.S, State.E, State.I, State.R]:
         ys = histories[(state, group)]
         color = state_color(state)
         style = "-" if group == "student" else ":"
-        ax.plot(
-            np.array(time) / 2, ys, style, color=color, label=state
-        )  # Half-time so it's days.  TODO: make state names nicer and label groups
+        ax.plot(time, ys, style, color=color, label=state)
 
 
 ax.legend()
