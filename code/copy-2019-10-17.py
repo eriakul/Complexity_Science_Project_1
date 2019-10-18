@@ -11,13 +11,14 @@ Original file is located at
 # TODO:
 # Make sure the 75% and 100% drops in connections are handled properly
 
+import os
+import csv
+import numpy as np
+from numpy.random import choice
 import matplotlib.pyplot as plt
 import gdown
-import csv
 import networkx as nx
-import numpy as np
 from enum import Enum
-from numpy.random import choice
 
 
 def load_data_from_drive():
@@ -25,11 +26,12 @@ def load_data_from_drive():
     Loads graph data from Google Drive.
     """
     edges = {}
-    gdown.download(
-        "https://drive.google.com/uc?id=1vBUOcQVh1EDY91xtW4fZjowbN8RFQ5Br",
-        "interactions.txt",
-        quiet=True,
-    )
+    if not os.path.exists("interactions.txt"):
+        gdown.download(
+            "https://drive.google.com/uc?id=1vBUOcQVh1EDY91xtW4fZjowbN8RFQ5Br",
+            "interactions.txt",
+            quiet=True,
+        )
     with open("interactions.txt") as f:
         c = csv.reader(f, delimiter="\t")
         for row in c:
