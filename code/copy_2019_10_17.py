@@ -29,9 +29,6 @@ class State(Enum):
     R = "recovered"
 
 
-all_states = [State.S, State.E, State.I, State.R]
-
-
 class Job(Enum):
     S = "student"
     T = "teacher"
@@ -39,15 +36,12 @@ class Job(Enum):
     O = "other"
 
 
-all_jobs = [Job.S, Job.T, Job.A]
-
-
 def str_to_job(s):
     return {"student": Job.S, "teacher": Job.T, "staff": Job.A, "other": Job.O}[s]
 
 
 # List of all pairs of state and student/teacher status, e.g. "susceptible teachers'
-all_groups = {(s, j): None for s in all_states for j in all_jobs}
+all_groups = {(s, j): None for s in State for j in Job}
 
 
 def load_data_from_drive():
@@ -252,19 +246,19 @@ if __name__ == "__main__":
 
     Sch.randomly_expose()
 
-    for _ in range(100):  # Length is capped at that many ticks
-        time.append(time[-1] + 0.5 if time else 0)
+    for i in range(100):  # Length is capped at that many ticks
+        time.append(i / 2)
 
         global_state = Sch.get_global_state_jobs()
 
         for group in all_groups:
-            histories[group].append(global_state[(state, group)])
+            histories[group].append(global_state[group])
 
         # If nobody is exposed or infected, the epidemic is over.
         if all(
             map(
-                lambda g: global_state(g) == 0,
-                [(s, j) for s in [State.E, State.I] for j in all_jobs],
+                lambda g: global_state[g] == 0,
+                [(s, j) for s in [State.E, State.I] for j in Job],
             )
         ):
             print("The epidemic is over.")
@@ -275,13 +269,13 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
 
     lines = []
-    for state, group in all_groups:
-        ys = histories[(state, group)]
+    for state, job in all_groups:
+        ys = histories[(state, job)]
         color = state_color(state)
-        style = "-" if group == "student" else ":"
+        style = {Job.S: "-", Job.T: ":", Job.A: "--", Job.O: "-."}[job]
         ax.plot(
             time, ys, style, color=color, label=state.value
-        )  # TODO: Capitalize names
+        )  # TODO: Capitalize names and add job
 
     ax.legend()
     plt.title("SEIR High School Model - Instantaneous Time Steps")
