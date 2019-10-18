@@ -10,6 +10,8 @@ Original file is located at
 
 # TODO:
 # Make sure the 75% and 100% drops in connections are handled properly
+# Do we deal with weekends properly?
+# Should every other half-day be night?
 
 import os
 import csv
@@ -126,7 +128,10 @@ class School:
         p = 1.0 - np.power(0.95, time_infected)
         return np.random.random() < p
 
-    def step(self):
+    def step(self, school_in_session):
+        """
+        school_in_session is True iff it's a weekday and not night
+        """
         to_expose = set()
         to_infect = set()
         to_recover = set()
@@ -135,17 +140,23 @@ class School:
             sick_node = self.G.node[index]
             state = sick_node["state"]
 
-            for neighbor, weight in self.get_neighbors_weights(index):
-                neighborState = self.G.node[neighbor]["state"]
-                if neighborState == State.S:
-                    if self.transmit_p(weight, show_symptoms=(state == State.I)):
-                        to_expose.add(neighbor)
-
             if state == State.E:
                 sick_node["incubation_period"] -= 1
                 if sick_node["incubation_period"] < 0:
                     to_infect.add(index)
+
             elif state == State.I:
+                # Infect neighbors if school is in session
+                if school_in_session:
+                    for neighbor, weight in self.get_neighbors_weights(index):
+                        neighborState = self.G.node[neighbor]["state"]
+                        if neighborState == State.S:
+                            if self.transmit_p(
+                                weight, show_symptoms=(state == State.I)
+                            ):
+                                to_expose.add(neighbor)
+
+                # Do we recover?
                 if self.recover_p(sick_node["time_infected"]):
                     to_recover.add(index)
                 else:
@@ -161,6 +172,7 @@ class School:
             self.recover(node)
 
     def get_neighbors_weights(self, node):
+        # TODO: Can this function be simplified / inlined?
         arr = []
         for n in self.G.neighbors(node):
             arr.append((n, self.G.edges[(node, n)]["weight"]))
@@ -208,7 +220,6 @@ class School:
 
 steps = 30
 Sch = School(edges, people)
-Sch.randomly_expose()
 
 time = []  # Times of steps, in days
 histories = {}  # How many people in 'group' were in 'state'?
@@ -216,6 +227,7 @@ for state in [State.S, State.E, State.I, State.R]:
     for group in ["student", "teacher"]:
         histories[(state, group)] = []
 
+Sch.randomly_expose()
 
 for i in range(steps):
     time.append(i / 2)  # Each step is a half-day
@@ -226,7 +238,7 @@ for i in range(steps):
         for group in ["student", "teacher"]:
             histories[(state, group)].append(global_state.get((state, group), 0))
 
-    Sch.step()
+    Sch.step(i % 2 == 0 and (i // 2) % 7 < 5)
 
 fig, ax = plt.subplots()
 
