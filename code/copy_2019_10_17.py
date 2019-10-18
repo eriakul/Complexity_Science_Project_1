@@ -10,8 +10,7 @@ Original file is located at
 
 # TODO:
 # Make sure the 75% and 100% drops in connections are handled properly
-# Do we deal with weekends properly?
-# Should every other half-day be night?
+# Stop the simulation when nobody is infectious, or nobody is susceptible
 
 import os
 import csv
@@ -218,42 +217,44 @@ class School:
         )
 
 
-steps = 30
-Sch = School(edges, people)
+if __name__ == "__main__":
+    steps = 30
+    Sch = School(edges, people)
 
-time = []  # Times of steps, in days
-histories = {}  # How many people in 'group' were in 'state'?
-for state in [State.S, State.E, State.I, State.R]:
-    for group in ["student", "teacher"]:
-        histories[(state, group)] = []
-
-Sch.randomly_expose()
-
-for i in range(steps):
-    time.append(i / 2)  # Each step is a half-day
-
-    global_state = Sch.get_global_state_jobs()
-
+    time = []  # Times of steps, in days
+    histories = {}  # How many people in 'group' were in 'state'?
     for state in [State.S, State.E, State.I, State.R]:
         for group in ["student", "teacher"]:
-            histories[(state, group)].append(global_state.get((state, group), 0))
+            histories[(state, group)] = []
 
-    Sch.step(i % 2 == 0 and (i // 2) % 7 < 5)
+    Sch.randomly_expose()
 
-fig, ax = plt.subplots()
+    for i in range(steps):
+        time.append(i / 2)  # Each step is a half-day
 
-lines = []
-for state in [State.S, State.E, State.I, State.R]:
-    for group in ["student", "teacher"]:
-        ys = histories[(state, group)]
-        color = state_color(state)
-        style = "-" if group == "student" else ":"
-        ax.plot(time, ys, style, color=color, label=state)
+        global_state = Sch.get_global_state_jobs()
 
+        for state in [State.S, State.E, State.I, State.R]:
+            for group in ["student", "teacher"]:
+                histories[(state, group)].append(global_state.get((state, group), 0))
 
-ax.legend()
-plt.title("SEIR High School Model - Instantaneous Time Steps")
-plt.xlabel("Time (days)")
-plt.ylabel("People")
+        Sch.step(i % 2 == 0 and (i // 2) % 7 < 5)
 
-plt.show()
+    fig, ax = plt.subplots()
+
+    lines = []
+    for state in [State.S, State.E, State.I, State.R]:
+        for group in ["student", "teacher"]:
+            ys = histories[(state, group)]
+            color = state_color(state)
+            style = "-" if group == "student" else ":"
+            ax.plot(
+                time, ys, style, color=color, label=state.value
+            )  # TODO: Capitalize names
+
+    ax.legend()
+    plt.title("SEIR High School Model - Instantaneous Time Steps")
+    plt.xlabel("Time (days)")
+    plt.ylabel("People")
+
+    plt.show()
