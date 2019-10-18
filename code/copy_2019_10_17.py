@@ -170,9 +170,7 @@ class School:
                     for neighbor, weight in self.get_neighbors_weights(index):
                         neighborState = self.G.node[neighbor]["state"]
                         if neighborState == State.S:
-                            if self.transmit_p(
-                                weight, show_symptoms=(state == State.I)
-                            ):
+                            if self.transmit_p(weight, True):
                                 to_expose.add(neighbor)
 
                 # Do we recover?
