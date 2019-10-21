@@ -395,18 +395,20 @@ def parallel_epidemics(
     )
 
 
-epidemics = parallel_epidemics(4, False, 0)
+epidemics = parallel_epidemics(100, False, 0)
 
 histories = [(times, history) for (_, times, history) in epidemics]
 
+plt.figure(figsize=(8, 6))
+
 for times, history in histories:
     infected = np.array(history[State.E]) + np.array(history[State.I])
-    plt.plot(times, infected, color="black", alpha=0.3)
+    plt.plot(times, infected, color="black", alpha=0.15)
 
 plt.xlabel("Time (days)")
 plt.ylabel("Number of infected people")
-plt.title("Ensemble of epidemics (no vaccination)")
-plt.show()
+plt.title("100 epidemics (no vaccination)")
+plt.savefig("ensemble.pdf")
 
 
 if False:  # Don't make histogram
