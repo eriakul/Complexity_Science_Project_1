@@ -309,7 +309,7 @@ if False:  # Don't graph
 
 
 def test_epidemic(
-    stop_early=True,
+    do_history=True,
     seed=None,
     vaccination_rate=0,
     epidemic_threshold=0.5,
@@ -334,10 +334,11 @@ def test_epidemic(
         school.step(i)  # Move the simulation forward by one tick
         global_state = school.get_global_state()
 
-        # Record data for plotting
-        times.append(i / 2)
-        for state in State:
-            history[state].append(global_state[state])
+        if do_history:
+            # Record data for plotting
+            times.append(i / 2)
+            for state in State:
+                history[state].append(global_state[state])
 
         current_infected = global_state[State.E] + global_state[State.I]
         current_recovered = global_state[State.R]
@@ -351,7 +352,7 @@ def test_epidemic(
         ):
             epidemic_happened = True
             took_too_long = False
-            if stop_early:
+            if not do_history:
                 break
 
     if took_too_long:
@@ -365,19 +366,19 @@ def test_epidemic(
 class EpidemicTester:  # A pickle-able version of test_epidemic so we can parallelize
     def __init__(
         self,
-        stop_early=True,
+        do_history=False,
         vaccination_rate=0,
         epidemic_threshold=0.5,
         max_steps=1000,
     ):
-        self.stop_early = stop_early
+        self.do_history = do_history
         self.vaccination_rate = vaccination_rate
         self.epidemic_threshold = epidemic_threshold
         self.max_steps = max_steps
 
     def __call__(self, seed=None):
         return test_epidemic(
-            self.stop_early,
+            self.do_history,
             seed,
             self.vaccination_rate,
             self.epidemic_threshold,
@@ -386,17 +387,17 @@ class EpidemicTester:  # A pickle-able version of test_epidemic so we can parall
 
 
 def parallel_epidemics(
-    n, stop_early=True, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000
+    n, do_history=False, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000
 ):
     pool = mp.Pool(processes=4)
     return pool.map(
-        EpidemicTester(stop_early, vaccination_rate, epidemic_threshold, max_steps),
+        EpidemicTester(do_history, vaccination_rate, epidemic_threshold, max_steps),
         range(n),
     )
 
 
 if False:  # Don't make ensemble graph
-    epidemics = parallel_epidemics(100, False, 0)
+    epidemics = parallel_epidemics(100, True, 0)
 
     histories = [(times, history) for (_, times, history) in epidemics]
 
@@ -412,10 +413,10 @@ if False:  # Don't make ensemble graph
     plt.savefig("ensemble.pdf")
 
 
-rates = np.arange(0, 1.0001, 0.1)
+rates = np.arange(0, 1.0001, 0.05)
 results = []
 for rate in rates:
-    epidemics = parallel_epidemics(64, True, rate)
+    epidemics = parallel_epidemics(4, False, rate)
     results.append(np.mean([happened for (happened, _, _) in epidemics]))
     print(rate, results[-1])
 
