@@ -395,24 +395,35 @@ def parallel_epidemics(
     )
 
 
-epidemics = parallel_epidemics(100, False, 0)
+if False:  # Don't make ensemble graph
+    epidemics = parallel_epidemics(100, False, 0)
 
-histories = [(times, history) for (_, times, history) in epidemics]
+    histories = [(times, history) for (_, times, history) in epidemics]
+
+    plt.figure(figsize=(8, 6))
+
+    for times, history in histories:
+        infected = np.array(history[State.E]) + np.array(history[State.I])
+        plt.plot(times, infected, color="black", alpha=0.15)
+
+    plt.xlabel("Time (days)")
+    plt.ylabel("Number of infected people")
+    plt.title("100 epidemics (no vaccination)")
+    plt.savefig("ensemble.pdf")
+
+
+rates = np.arange(0, 1.0001, 0.1)
+results = []
+for rate in rates:
+    epidemics = parallel_epidemics(64, True, rate)
+    results.append(np.mean([happened for (happened, _, _) in epidemics]))
+    print(rate, results[-1])
 
 plt.figure(figsize=(8, 6))
 
-for times, history in histories:
-    infected = np.array(history[State.E]) + np.array(history[State.I])
-    plt.plot(times, infected, color="black", alpha=0.15)
+plt.plot(rates, results)  # Plot the data
 
-plt.xlabel("Time (days)")
-plt.ylabel("Number of infected people")
-plt.title("100 epidemics (no vaccination)")
-plt.savefig("ensemble.pdf")
-
-
-if False:  # Don't make histogram
-    results = []
-    for rate in np.arange(0, 1, 0.05):
-        results.append(np.mean(parallel_epidemics(32, rate)))
-        print(rate, results[-1])
+plt.xlabel("Fraction vaccinated")
+plt.ylabel("Likelihood of epidemic (>50% of susceptible infected)")
+plt.title("Impact of vaccination on disease spread")
+plt.savefig("vacc_hist.pdf")
