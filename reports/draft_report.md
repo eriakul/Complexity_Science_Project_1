@@ -41,8 +41,6 @@ Our reproduction results in data which match absentee rates gathered from the re
 
 In figure [foo], the fraction of students who are infected rises and falls sharply in a manner which is consistent with real infection. 
 
-[ TODO: Results from our extension ]
-
 ## Interpretation
 
 The model seems accurate.  Though more research and broader data are needed to confirm its accuracy and test its applicability to different groups and situations, graph-based models that use real-world graph seem a promising tool.  More specifically, we note that vaccinating according to [some strategy] is [23%] more effective than vaccinating at random; if a vaccination campaign is used at a school or similar institution, this could be used to guide the effort.
