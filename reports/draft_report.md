@@ -52,9 +52,9 @@ One limitation of this model is that it requires real-world data.  [ TODO: More 
 
 # Extension
  
-To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  In accordance with the CDC's findings [cite], vaccinations are about 40% effective, so 40% of individuals selected to be vaccinated are made immune (placed in the Recovered state).
+To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  In accordance with the CDC's findings [cite], vaccinations are about 40% effective, so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
  
-We ran [some number] simulations with varying fractions infected, and in each simulation tested whether the infection spread to 50% of the susceptible population.  
+We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested whether the infection spread to 50% of the susceptible population before it died out.  The results of the simulations are presented in figure foo.
 
 [ Graph goes here ]
 
