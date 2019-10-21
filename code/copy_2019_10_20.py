@@ -390,7 +390,7 @@ class EpidemicTester:  # A pickle-able version of test_epidemic so we can parall
 def parallel_epidemics(
     n, do_history=False, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000
 ):
-    pool = mp.Pool(processes=4)
+    pool = mp.Pool(processes=mp.cpu_count())
     return pool.map(
         EpidemicTester(do_history, vaccination_rate, epidemic_threshold, max_steps),
         range(n),
