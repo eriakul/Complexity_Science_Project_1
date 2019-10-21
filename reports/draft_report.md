@@ -3,11 +3,14 @@ Erika Lu and Adam Selker
 
 
 ## Abstract
-Mathematical graphs, consisting of nodes that represent individuals and edges that represent interactions, are a common tool for simulating disease spread through a population.  The graph structure is usually created using a stochastic algorithm.  In this paper, we replicate an experiment that uses real-world interaction data instead of an artificial graph, and expand on it by [doing something].  [TODO: Results]
-
+Mathematical graphs, consisting of nodes that represent individuals and edges that represent interactions, are a common tool for simulating disease spread through a population.  The graph structure is usually created using a stochastic algorithm.  In this paper, we replicate an [experiment](https://www.pnas.org/content/pnas/107/51/22020.full.pdf) that uses real-world interaction data instead of an artificial graph, and expand on it by introducing vaccinations to the model. 
 
 ## Purpose
-Infectious disease kills about one in four people [cite: something in https://en.wikipedia.org/wiki/Infection#Epidemiology].  People have developed tools for fighting epidemics, including vaccination; the effectiveness of these tools is often hampered by a lack of knowledge about how infection spreads, moves, and dies.  The model we reproduce and extend in this paper could be useful directly, for estimating the impact of vaccination [and whatever extension we do] on epidemics.  It could also be useful indirectly, by informing future models with different goals or greater accuracy.
+The 2018 flu season was categorized as a high severity season by the [United States Ceners for Disease Control and Prevention](https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm) and recorded the highest number of pediatric deaths in a regular flu season. About 80% of these deaths were non-vaccinated children. 
+
+Vaccines are a good precaution but not perfect. The effectiveness of the 2018 flu vaccine was an estimated 40%. According to the CDC, this means "the flu vaccine reduced a person’s overall risk of having to seek medical care at a doctor’s office for flu illness by 40%."
+
+Vaccines are also hampered by a lack of knowledge about how infection spreads, moves, and dies. The model we reproduce and extend in this paper could be useful directly, for estimating the impact of vaccination prevalency on epidemics.  It could also be useful indirectly, by informing future models with different goals or greater accuracy.
 
 
 ## Prior Work
@@ -20,11 +23,14 @@ In "A high-resolution human contact network for infectious disease transmission,
 
 ## Procedure
 
-In this paper, we replicate Salathé et al, and also [do some expansion].  We build a graph using data from Salathé et al. and proceed through fixed timesteps, following these rules:
-* TODO: Rewrite rules from Salathé
+In this paper, we replicate Salathé et al, and also add vaccinations to their model.  
 
-We implement the model in Python, using the NetworkX library [cite]. 
-
+Using the (NetworkX library)[https://networkx.github.io/], we build the original model using data from Salathé et al. to generate a graph following these rules:
+- Nodes represent people and edges represent interactions between the nodes. The edges are weighted with the contact duration between two individuals (1 edge weight = 20 seconds).
+- Nodes are initialized with the state, "susceptible".
+- The simulation starts by exposing the disease to a random _susceptible_ individual. The individual becomes _exposed_. An _exposed_ person has an incubation period defined by a Weibull distribution, then moves on to the _infectious_ state.  
+- At every time step (12 hours), the "infectious" individuals have a chance of probablility p of exposing the disease to their neighboring nodes. The probability of exposure is defined by p = 1 - (1 - 0.003)<sup>(.25 * edgeWeight)</sup>. 
+- At every time step (12 hours), previously _infectious_ individuals become _recovered_ and will no longer spread the disease. This simulates the individual leaving school within half a day. 
 
 ## Results
 
@@ -34,6 +40,9 @@ Our reproduction results in data which match absentee rates gathered from the re
 * TODO: Which things worked
 
 [ TODO: Results from our extension ]
+
+## Extension Procedure
+
 
 
 ## Interpretation
