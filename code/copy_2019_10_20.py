@@ -301,7 +301,7 @@ if False:  # Don't graph
     axOther.set_title("Other")
     plot_all_states(Job.O, axOther)
 
-    axStudent.set_xlabel("Time Steps (12 hours)")
+    axStudent.set_xlabel("Time (Days)")
     axStudent.set_ylabel("People")
 
     axOther.legend(loc="best")
@@ -395,7 +395,7 @@ def parallel_epidemics(
     )
 
 
-epidemics = parallel_epidemics(16, False, 0)
+epidemics = parallel_epidemics(4, False, 0)
 
 histories = [(times, history) for (_, times, history) in epidemics]
 
@@ -403,10 +403,13 @@ for times, history in histories:
     infected = np.array(history[State.E]) + np.array(history[State.I])
     plt.plot(times, infected, color="black", alpha=0.3)
 
+plt.xlabel("Time (days)")
+plt.ylabel("Number of infected people")
+plt.title("Ensemble of epidemics (no vaccination)")
 plt.show()
 
 
-if False:  # Make histogram
+if False:  # Don't make histogram
     results = []
     for rate in np.arange(0, 1, 0.05):
         results.append(np.mean(parallel_epidemics(32, rate)))
