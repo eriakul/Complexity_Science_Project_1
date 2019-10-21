@@ -37,9 +37,11 @@ Using the (NetworkX library)[https://networkx.github.io/], we build the original
 
 Our reproduction results in data which match absentee rates gathered from the real high school [cite: Salathé, they show it in Fig. 4], and which differ [only slightly] from the results obtained by Salathé et al. 
 
-
+![Visualization of infection by Salathé et al](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/TheirPlot.JPG)
 
 In figure [foo], the fraction of students who are infected rises and falls sharply in a manner which is consistent with real infection. 
+![Our SEIR](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/SubPlots.png)
+[ TODO: Results from our extension ]
 
 ## Interpretation
 
