@@ -413,10 +413,10 @@ if False:  # Don't make ensemble graph
     plt.savefig("ensemble.pdf")
 
 
-rates = np.arange(0, 1.0001, 0.05)
+rates = np.arange(0, 1.0001, 0.1)
 results = []
 for rate in rates:
-    epidemics = parallel_epidemics(4, False, rate)
+    epidemics = parallel_epidemics(512, False, rate)
     results.append(np.mean([happened for (happened, _, _) in epidemics]))
     print(rate, results[-1])
 
