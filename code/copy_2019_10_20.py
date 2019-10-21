@@ -319,10 +319,11 @@ def test_epidemic(
     np.random.seed(seed)
     school = School(edges, people)
 
-    total_susceptible = school.get_global_state()[State.S]
-
     school.randomly_vaccinate(vaccination_rate)
     school.randomly_expose()
+
+    total_susceptible = school.get_global_state()[State.S]
+    total_immune = school.get_global_state()[State.R]
 
     times = []
     history = {state: [] for state in State}
@@ -341,7 +342,7 @@ def test_epidemic(
                 history[state].append(global_state[state])
 
         current_infected = global_state[State.E] + global_state[State.I]
-        current_recovered = global_state[State.R]
+        current_recovered = global_state[State.R] - total_immune
         if current_infected == 0:
             epidemic_happened = False
             took_too_long = False
@@ -412,19 +413,19 @@ if False:  # Don't make ensemble graph
     plt.title("100 epidemics (no vaccination)")
     plt.savefig("ensemble.pdf")
 
+if __name__ == "__main__":
+    rates = np.arange(0, 1.0001, 0.1)
+    results = []
+    for rate in rates:
+        epidemics = parallel_epidemics(16, False, rate)
+        results.append(np.mean([happened for (happened, _, _) in epidemics]))
+        print(rate, results[-1])
 
-rates = np.arange(0, 1.0001, 0.1)
-results = []
-for rate in rates:
-    epidemics = parallel_epidemics(512, False, rate)
-    results.append(np.mean([happened for (happened, _, _) in epidemics]))
-    print(rate, results[-1])
+    plt.figure(figsize=(8, 6))
 
-plt.figure(figsize=(8, 6))
+    plt.plot(rates, results)  # Plot the data
 
-plt.plot(rates, results)  # Plot the data
-
-plt.xlabel("Fraction vaccinated")
-plt.ylabel("Likelihood of epidemic (>50% of susceptible infected)")
-plt.title("Impact of vaccination on disease spread")
-plt.savefig("vacc_hist.pdf")
+    plt.xlabel("Fraction vaccinated")
+    plt.ylabel("Likelihood of epidemic (>50% of susceptible infected)")
+    plt.title("Impact of vaccination on disease spread")
+    plt.savefig("vacc_hist.pdf")
