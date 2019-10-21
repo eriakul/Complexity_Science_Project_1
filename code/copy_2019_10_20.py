@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Project (1)
 
@@ -17,6 +18,7 @@ import networkx as nx
 from enum import Enum
 import multiprocessing as mp
 
+
 class State(Enum):
     S = "susceptible"
     E = "exposed"
@@ -29,7 +31,8 @@ class Job(Enum):
     T = "teacher"
     A = "staff"
     O = "other"
-    
+
+
 class School:
     def __init__(self, edges, people):
         self.G = nx.Graph()
@@ -45,22 +48,24 @@ class School:
         # we know who to look at during step().
         self.sick_nodes = []
 
-        self.time_offset = None # Can't step() until we randomly_expose()
+        self.time_offset = None  # Can't step() until we randomly_expose()
 
     def randomly_expose(self):
         unlucky_one = choice(self.G.nodes)
         # print("Person {} has become exposed to the disease.".format(unlucky_one))
         self.expose(unlucky_one)
         # Also, set the time offset so the infection doesn't always happen on Monday morning
-        self.time_offset = choice(range(14)) # Perhaps this should be in the constructor?
-      
-    def randomly_vaccinate(self, fraction, success_rate = 0.4):
+        self.time_offset = choice(
+            range(14)
+        )  # Perhaps this should be in the constructor?
+
+    def randomly_vaccinate(self, fraction, success_rate=0.4):
         assert 0 <= fraction <= 1
         assert 0 <= success_rate <= 1
-        people_to_vaccinate = choice(self.G.nodes, int(fraction*len(self.G.nodes)))
+        people_to_vaccinate = choice(self.G.nodes, int(fraction * len(self.G.nodes)))
         for person in people_to_vaccinate:
             if np.random.random() < success_rate:
-              self.G.node[person]["state"] = State.R
+                self.G.node[person]["state"] = State.R
 
     def transmit_p(self, weight, show_symptoms=False):
         """
@@ -103,7 +108,9 @@ class School:
         a night or weekend.
         """
 
-        school_in_session = ((time + self.time_offset) % 2 == 0 and ((time + self.time_offset) // 2) % 7 < 5)
+        school_in_session = (time + self.time_offset) % 2 == 0 and (
+            (time + self.time_offset) // 2
+        ) % 7 < 5
         # school_in_session is True iff it's a weekday and not night
         to_expose = set()
         to_infect = set()
@@ -161,7 +168,7 @@ class School:
     def recover(self, index):
         self.G.node[index]["state"] = State.R
         self.sick_nodes.remove(index)
-        
+
     def state_color(self, state):
         if state == State.S:
             return "green"
@@ -195,7 +202,9 @@ class School:
 
     def visualize(self):
         nx.draw_networkx(
-            self.G, node_color=self.get_colors(), node_size=5, with_labels=False)
+            self.G, node_color=self.get_colors(), node_size=5, with_labels=False
+        )
+
 
 def str_to_job(s):
     return {"student": Job.S, "teacher": Job.T, "staff": Job.A, "other": Job.O}[s]
@@ -233,106 +242,128 @@ def load_data_from_drive():
     edges_list = [(key[0], key[1], value) for key, value in edges.items()]
     return edges_list, people
 
+
 # List of all pairs of state and student/teacher status, e.g. "susceptible teachers'
 all_groups = {(s, j): None for s in State for j in Job}
 
 edges, people = load_data_from_drive()
 
-Sch = School(edges, people)
 
-time = []  # Times of steps, in days
-histories = {
-    g: [] for g in all_groups
-}  # How many people in 'group' were in 'state'?
+if False:  # Don't graph
+    Sch = School(edges, people)
 
-Sch.randomly_expose()
+    time = []  # Times of steps, in days
+    histories = {
+        g: [] for g in all_groups
+    }  # How many people in 'group' were in 'state'?
 
-for i in range(100):  # Length is capped at that many ticks
-    time.append(i / 2)
+    Sch.randomly_expose()
 
-    global_state = Sch.get_global_state_jobs()
+    for i in range(100):  # Length is capped at that many ticks
+        time.append(i / 2)
 
-    for group in all_groups:
-        histories[group].append(global_state[group])
+        global_state = Sch.get_global_state_jobs()
 
-    # If nobody is exposed or infected, the epidemic is over.
-    if all(
-        map(
-            lambda g: global_state[g] == 0,
-            [(s, j) for s in [State.E, State.I] for j in Job],
+        for group in all_groups:
+            histories[group].append(global_state[group])
+
+        # If nobody is exposed or infected, the epidemic is over.
+        if all(
+            map(
+                lambda g: global_state[g] == 0,
+                [(s, j) for s in [State.E, State.I] for j in Job],
+            )
+        ):
+            print("The epidemic is over on day {}.".format(i / 2))
+            break
+
+        Sch.step(i)
+
+    def plot_all_states(job, ax):
+        for s in State:
+            ys = histories[(s, job)]
+            color = Sch.state_color(s)
+            ax.plot(time, ys, color=color, label=s.value)
+
+    f, (axStudent, axTeacher, axStaff, axOther) = plt.subplots(
+        1, 4, sharex=True, sharey=False, figsize=(25, 4)
+    )
+
+    axStudent.set_title("Students")
+    plot_all_states(Job.S, axStudent)
+
+    axTeacher.set_title("Teachers")
+    plot_all_states(Job.T, axTeacher)
+
+    axStaff.set_title("Staff")
+    plot_all_states(Job.A, axStaff)
+
+    axOther.set_title("Other")
+    plot_all_states(Job.O, axOther)
+
+    axStudent.set_xlabel("Time Steps (12 hours)")
+    axStudent.set_ylabel("People")
+
+    axOther.legend(loc="best")
+    plt.show()
+
+
+def test_epidemic(
+    seed=None, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000
+):
+
+    np.random.seed(seed)
+    school = School(edges, people)
+
+    total_susceptible = school.get_global_state()[State.S]
+
+    school.randomly_vaccinate(vaccination_rate)
+    school.randomly_expose()
+
+    history = {state: [] for state in State}
+
+    for i in range(max_steps):
+        school.step(i)  # Move the simulation forward by one tick
+        global_state = school.get_global_state()
+
+        for state in State:
+            history[state].append(global_state()[state])
+
+        current_infected = global_state()[State.E] + global_state()[State.I]
+        current_recovered = global_state()[State.R]
+        if current_infected == 0:
+            return False
+        if (
+            epidemic_threshold
+            <= (current_infected + current_recovered) / total_susceptible
+        ):
+            return True
+
+    raise RuntimeError(
+        "Epidemic took more than " + str(max_steps) + " steps to fail or succeed"
+    )
+
+
+class EpidemicTester:  # A pickle-able version of test_epidemic so we can parallelize
+    def __init__(self, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000):
+        self.vaccination_rate = vaccination_rate
+        self.epidemic_threshold = epidemic_threshold
+        self.max_steps = max_steps
+
+    def __call__(self, seed=None):
+        return test_epidemic(
+            seed, self.vaccination_rate, self.epidemic_threshold, self.max_steps
         )
-    ):
-        print("The epidemic is over on day {}.".format(i/2))
-        break
-
-    Sch.step(i)
-    
-    
-
-def plot_all_states(job, ax):
-  for s in State:
-    ys = histories[(s, job)]
-    color = Sch.state_color(s)
-    ax.plot(time, ys, color=color, label = s.value)
 
 
-f, (axStudent, axTeacher, axStaff, axOther) = plt.subplots(1,4, sharex=True, sharey=False, figsize=(25, 4))
-
-axStudent.set_title('Students')
-plot_all_states(Job.S, axStudent)
-
-axTeacher.set_title('Teachers')
-plot_all_states(Job.T, axTeacher)
-
-axStaff.set_title('Staff')
-plot_all_states(Job.A, axStaff)
-
-axOther.set_title('Other')
-plot_all_states(Job.O, axOther)
-
-
-axStudent.set_xlabel("Time Steps (12 hours)")
-axStudent.set_ylabel("People")
-
-axOther.legend(loc="best")
-plt.show()
-
-def test_epidemic(seed = None, vaccination_rate = 0, epidemic_threshold = 0.5, max_steps = 1000):
-
-  np.random.seed(seed)
-  school = School(edges, people)
-
-  total_susceptible = school.get_global_state()[State.S]
-
-  school.randomly_vaccinate(vaccination_rate)
-  school.randomly_expose()
-
-  for i in range(max_steps):
-    school.step(i)
-    current_infected = school.get_global_state()[State.E] + school.get_global_state()[State.I]
-    current_recovered = school.get_global_state()[State.R]
-    if current_infected  == 0:
-      return False
-    if epidemic_threshold <= (current_infected + current_recovered) / total_susceptible:
-      return True
-    
-  raise RuntimeError("Epidemic took more than " + str(max_steps) + " steps to fail or succeed")
-
-class EpidemicTester(): # A pickle-able version of test_epidemic so we can parallelize
-  def __init__(self, vaccination_rate = 0, epidemic_threshold = 0.5, max_steps = 1000):
-    self.vaccination_rate = vaccination_rate
-    self.epidemic_threshold = epidemic_threshold
-    self.max_steps = max_steps
-  def __call__(self, seed=None):
-    return test_epidemic(seed, self.vaccination_rate, self.epidemic_threshold, self.max_steps)
-
-def parallel_epidemics(n, vaccination_rate = 0, epidemic_threshold = 0.5, max_steps = 1000):
-  pool = mp.Pool(processes=16)
-  return pool.map(EpidemicTester(vaccination_rate, epidemic_threshold, max_steps), range(n))
+def parallel_epidemics(n, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000):
+    pool = mp.Pool(processes=4)
+    return pool.map(
+        EpidemicTester(vaccination_rate, epidemic_threshold, max_steps), range(n)
+    )
 
 
 results = []
 for rate in np.arange(0, 1, 0.05):
-  print(rate)
-  results.append(np.mean(parallel_epidemics(32, rate)))
-
+    results.append(np.mean(parallel_epidemics(32, rate)))
+    print(rate, results[-1])
