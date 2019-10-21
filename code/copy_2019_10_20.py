@@ -309,7 +309,11 @@ if False:  # Don't graph
 
 
 def test_epidemic(
-    seed=None, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000
+    stop_early=True,
+    seed=None,
+    vaccination_rate=0,
+    epidemic_threshold=0.5,
+    max_steps=1000,
 ):
 
     np.random.seed(seed)
@@ -320,50 +324,90 @@ def test_epidemic(
     school.randomly_vaccinate(vaccination_rate)
     school.randomly_expose()
 
+    times = []
     history = {state: [] for state in State}
+
+    epidemic_happened = False
+    took_too_long = True
 
     for i in range(max_steps):
         school.step(i)  # Move the simulation forward by one tick
         global_state = school.get_global_state()
 
+        # Record data for plotting
+        times.append(i / 2)
         for state in State:
-            history[state].append(global_state()[state])
+            history[state].append(global_state[state])
 
-        current_infected = global_state()[State.E] + global_state()[State.I]
-        current_recovered = global_state()[State.R]
+        current_infected = global_state[State.E] + global_state[State.I]
+        current_recovered = global_state[State.R]
         if current_infected == 0:
-            return False
+            epidemic_happened = False
+            took_too_long = False
+            break
         if (
             epidemic_threshold
             <= (current_infected + current_recovered) / total_susceptible
         ):
-            return True
+            epidemic_happened = True
+            took_too_long = False
+            if stop_early:
+                break
 
-    raise RuntimeError(
-        "Epidemic took more than " + str(max_steps) + " steps to fail or succeed"
-    )
+    if took_too_long:
+        raise RuntimeError(
+            "Epidemic took more than " + str(max_steps) + " steps to fail or succeed"
+        )
+    else:
+        return epidemic_happened, times, history
 
 
 class EpidemicTester:  # A pickle-able version of test_epidemic so we can parallelize
-    def __init__(self, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000):
+    def __init__(
+        self,
+        stop_early=True,
+        vaccination_rate=0,
+        epidemic_threshold=0.5,
+        max_steps=1000,
+    ):
+        self.stop_early = stop_early
         self.vaccination_rate = vaccination_rate
         self.epidemic_threshold = epidemic_threshold
         self.max_steps = max_steps
 
     def __call__(self, seed=None):
         return test_epidemic(
-            seed, self.vaccination_rate, self.epidemic_threshold, self.max_steps
+            self.stop_early,
+            seed,
+            self.vaccination_rate,
+            self.epidemic_threshold,
+            self.max_steps,
         )
 
 
-def parallel_epidemics(n, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000):
+def parallel_epidemics(
+    n, stop_early=True, vaccination_rate=0, epidemic_threshold=0.5, max_steps=1000
+):
     pool = mp.Pool(processes=4)
     return pool.map(
-        EpidemicTester(vaccination_rate, epidemic_threshold, max_steps), range(n)
+        EpidemicTester(stop_early, vaccination_rate, epidemic_threshold, max_steps),
+        range(n),
     )
 
 
-results = []
-for rate in np.arange(0, 1, 0.05):
-    results.append(np.mean(parallel_epidemics(32, rate)))
-    print(rate, results[-1])
+epidemics = parallel_epidemics(16, False, 0)
+
+histories = [(times, history) for (_, times, history) in epidemics]
+
+for times, history in histories:
+    infected = np.array(history[State.E]) + np.array(history[State.I])
+    plt.plot(times, infected, color="black", alpha=0.3)
+
+plt.show()
+
+
+if False:  # Make histogram
+    results = []
+    for rate in np.arange(0, 1, 0.05):
+        results.append(np.mean(parallel_epidemics(32, rate)))
+        print(rate, results[-1])
