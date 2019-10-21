@@ -43,15 +43,22 @@ In figure [foo], the fraction of students who are infected rises and falls sharp
 
 [ TODO: Results from our extension ]
 
-## Extension Procedure
-
-
-
 ## Interpretation
 
 The model seems accurate.  Though more research and broader data are needed to confirm its accuracy and test its applicability to different groups and situations, graph-based models that use real-world graph seem a promising tool.  More specifically, we note that vaccinating according to [some strategy] is [23%] more effective than vaccinating at random; if a vaccination campaign is used at a school or similar institution, this could be used to guide the effort.
 
 One limitation of this model is that it requires real-world data.  [ TODO: More on this, and on outside interactions, limitations of SEIR model, computational feasability]
+
+
+# Extension
+ 
+To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  In accordance with the CDC's findings [cite], vaccinations are about 40% effective, so 40% of individuals selected to be vaccinated are made immune (placed in the Recovered state).
+ 
+We ran [some number] simulations with varying fractions infected, and in each simulation tested whether the infection spread to 50% of the susceptible population.  
+
+[ Graph goes here ]
+
+[ TODO: Commentary on results ]
 
 
 ## Source Code
