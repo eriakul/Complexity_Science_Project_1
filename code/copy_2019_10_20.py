@@ -339,7 +339,7 @@ def parallel_epidemics(
 
 if __name__ == "__main__":
 
-    if False:  # Make a single graph
+    if False:  # Run a single simulation, and make one graph per job
         Sch = School(edges, people)
 
         time = []  # Times of steps, in days
@@ -397,7 +397,7 @@ if __name__ == "__main__":
         axOther.legend(loc="best")
         plt.savefig("single_shot_graph.png")
 
-    if True:  # Make ensemble-ish graph
+    if True:  # Make an ensemble-ish graph
         epidemics = parallel_epidemics(100, True, 0)
 
         histories = [(times, history) for (_, times, history) in epidemics]
@@ -415,7 +415,7 @@ if __name__ == "__main__":
         plt.title("100 epidemics (no vaccination)")
         plt.savefig("ensemble.png")
 
-    if False:  # Make vaccination quantile graph
+    if False:  # Make a vaccination quantile graph
         rates = np.arange(0, 1.0001, 0.05)
         quantiles = {0.20: [], 0.30: [], 0.40: [], 0.50: [], 0.60: []}
         frac_25, frac_50, frac_75 = [], [], []
