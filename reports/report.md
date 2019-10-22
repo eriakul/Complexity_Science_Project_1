@@ -14,7 +14,7 @@ Vaccines are also hampered by a lack of knowledge about how infection spreads, m
 
 
 ## Prior Work
-In "A high-resolution human contact network for infectious disease transmission," Salathé et al (2010) use an SEIR model run on a graph to simulate infection in a high school.
+In "A high-resolution human contact network for infectious disease transmission," Salathé et al. (2010) use an SEIR model run on a graph to simulate infection in a high school.
 
 An SEIR model is an example of a compartmental model, a group of models proposed in "A Contribution to the Mathematical Theory of Epidemics" (Kermack & McKendrick, 1927).  In the model, each individual is in one of four states. A _susceptible_ individual is not immune to the infection, but has not yet been exposed.  An _exposed_ individual has been exposed to the infection, but is not yet contagious.  An _infectious_ individual is capable to transmitting the infection to others.  A _recovered_ individual is immune, or highly resistant to the infection.  
 
@@ -29,9 +29,9 @@ In this paper, we replicate Salathé et al, and also add vaccinations to their m
 
 Using the [NetworkX library](https://networkx.github.io/), we build the original model using data from Salathé et al. to generate a graph following these rules:
 - Nodes represent people and edges represent interactions between the nodes. The edges are weighted with the contact duration between two individuals (1 edge weight = 20 seconds).
-- Nodes are initialized with the state, "susceptible".
-- The simulation starts by exposing the disease to a random _susceptible_ individual. The individual becomes _exposed_. An _exposed_ person has an incubation period defined by a Weibull distribution, then moves on to the _infectious_ state.  
-- At every time step (12 hours), the "infectious" individuals have a chance of probablility p of exposing the disease to their neighboring nodes. The probability of exposure is defined by p = 1 - (1 - 0.003)<sup>(.25 * edgeWeight)</sup>. 
+- Nodes are initialized in the _susceptible_ state.
+- The simulation starts by exposing the disease to a random _susceptible_ individual. The individual becomes _exposed_. An _exposed_ person goes through an incubation period defined by a Weibull distribution (power parameter 2.21, scale factor 1.10), and then moves on to the _infectious_ state.  
+- At every time step (12 hours), the _infectious_ individuals have a chance of probability p of exposing the disease to their neighboring nodes. The probability of exposure is defined by p = 1 - (1 - 0.003)<sup>(.25 * edge\_weight)</sup>. 
 - At every time step (12 hours), previously _infectious_ individuals become _recovered_ and will no longer spread the disease. This simulates the individual leaving school within half a day. 
 
 ## Results
@@ -58,13 +58,15 @@ Another, related limitation is that the data is collected over a single day.  Da
  
 To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  Influenza vaccines are about 40% effective [cite: https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm], so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
  
-We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested what fraction of the population was infected before the disease died out.  The results of the simulations are presented in figure $n.
+We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested what fraction of the population was infected before the disease died out.  The results of the simulations are presented in Figure 3.
 
-[!Epidemic size frequencies varying with vaccination rates](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/vacc_hist.png)
+![Epidemic size frequencies varying with vaccination rates](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/vacc_hist.png)  
+Figure 3: Epidemic size frequencies varying with vaccination rates
 
-Though the trend is clear, the effect is only moderate, and there is no clear cutoff for "herd immunity".  With no immunity, the epidemic usually reaches between 50% and 60% of the population.  With perfect vaccination, it reaches between 30% and 40%.  The limited effect is due to the low effectiveness of the vaccine; see figure $n, which visualizes the same model but with 100%-effective vaccines.
+Though the trend is clear, the effect is only moderate, and there is no clear cutoff for "herd immunity".  With no immunity, the epidemic usually reaches between 50% and 60% of the population.  With perfect vaccination, it reaches between 30% and 40%.  The limited effect is due to the low effectiveness of the vaccine; see Figure 4, which visualizes the same model but with 100%-effective vaccines.
 
-[!Vaccination impact when vaccines are perfectly effective](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/vacc_hist_perfect_vaccine.png)
+![Vaccination impact when vaccines are perfectly effective](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/vacc_hist_perfect_vaccine.png)
+Figure 4: Vaccination impact when vaccines are perfectly effective
 
 When the vaccine is perfectly effective, there is still no distinct threshold for herd immunity, but epidemic sizes drop more sharply.  At 60% vaccination rate, most epidemics do not affect more than 20% of the population.
 
