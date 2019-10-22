@@ -73,7 +73,9 @@ In reality, about 47% of Americans receive vaccines against influenza each year 
 
 ## Source Code
 
-The source code is available at [ref: our Github], and can be run online at [ref: Binder].  
+The source code is available on GitHub at https://github.com/eriakul/Complexity_Science_Project_1/blob/master/code/model.py.
+
+Jupyter notebook versions are available [on NBViewer](https://nbviewer.jupyter.org/github/eriakul/Complexity_Science_Project_1/blob/master/code/Epidemic%20Simulation%20Using%20Real-World%20Interaction%20Data.ipynb) (static), and [Binder][info.cern.ch] (runnable).
 
 ## References
 
