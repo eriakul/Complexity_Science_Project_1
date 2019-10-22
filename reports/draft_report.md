@@ -3,10 +3,10 @@ Erika Lu and Adam Selker
 
 
 ## Abstract
-Mathematical graphs, consisting of nodes that represent individuals and edges that represent interactions, are a common tool for simulating disease spread through a population.  The graph structure is usually created using a stochastic algorithm.  In this paper, we replicate an [experiment](https://www.pnas.org/content/pnas/107/51/22020.full.pdf) that uses real-world interaction data instead of an artificial graph, and expand on it by introducing vaccinations to the model to see how different frequencies of vaccination affect the probability of an epidemic. 
+Mathematical graphs, consisting of nodes that represent individuals and edges that represent interactions, are a common tool for simulating disease spread through a population.  The graph structure is usually created using a stochastic algorithm.  In this paper, we replicate Salathé et al. (2010), which uses real-world interaction data instead of an artificial graph, and expand on it by introducing vaccinations to the model to see how different frequencies of vaccination affect the probability of an epidemic. 
 
 ## Purpose
-The 2018 flu season was categorized as a high severity season by the [United States Center for Disease Control and Prevention](https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm) and recorded the highest number of pediatric deaths in a regular flu season. About 80% of these deaths were non-vaccinated children. 
+The 2018 flu season was categorized as a high severity season by the United States Center for Disease Control and Prevention (Center for Disease Control, 2019) and recorded the highest number of pediatric deaths in a regular flu season. About 80% of these deaths were non-vaccinated children. 
 
 Vaccines are a good precaution but not perfect. The effectiveness of the 2018 flu vaccine was an estimated 40%. According to the CDC, this means "the flu vaccine reduced a person’s overall risk of having to seek medical care at a doctor’s office for flu illness by 40%."
 
@@ -18,7 +18,7 @@ In "A high-resolution human contact network for infectious disease transmission,
 
 An SEIR model is an example of a compartmental model, a group of models proposed in "A Contribution to the Mathematical Theory of Epidemics" (Kermack & McKendrick, 1927).  In the model, each individual is in one of four states. A _susceptible_ individual is not immune to the infection, but has not yet been exposed.  An _exposed_ individual has been exposed to the infection, but is not yet contagious.  An _infectious_ individual is capable to transmitting the infection to others.  A _recovered_ individual is immune, or highly resistant to the infection.  
 
-A mathematical graph consists of nodes connected by edges.  Each node represents an individual, each edge represents contact between two individuals.  Edges are _weighted_, representing the frequency and duration of contact between the individuals.  The use of graphs with compartmental models to represent disease spread is [not novel to Salathé et al](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3861041/).  However, the graphs are usually built using an algorithm.  Instead, the authors of this paper use real data collected at a school to build the graph directly.
+A mathematical graph consists of nodes connected by edges.  Each node represents an individual, each edge represents contact between two individuals.  Edges are _weighted_, representing the frequency and duration of contact between the individuals.  The use of graphs with compartmental models to represent disease spread is not novel to Salathé et al. (Kamp, Moslonka-Lefebvre, & Alizon, 2013).  However, the graphs are usually built using an algorithm.  Instead, the authors of this paper use real data collected at a school to build the graph directly.
 
 The authors give students and faculty at a high school wearable devices which track close interactions.  Using this data, they build a graph representing the school, where each tracking device is a node and each edge is weighted based on the duration during which two trackers were in close proximity (3 m).
 
@@ -54,7 +54,7 @@ One limitation of this model is that it requires real-world data.  Using this me
 
 Another, related limitation is that the data is collected over a single day.  Day-to-day interaction patterns vary, and so there will be noise in the data if only one day is analyzed.  Again, doing this perfectly would require an arbitrarily large investment, but approximations could be made.  For instance, transponders could be worn on a few days distributed across a year, and interaction frequencies could be averaged across the different datasets.
 
-# Extension
+## Vaccinations
  
 To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  Influenza vaccines are about 40% effective [cite: https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm], so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
  
@@ -68,8 +68,22 @@ Though the trend is clear, the effect is only moderate, and there is no clear cu
 
 When the vaccine is perfectly effective, there is still no distinct threshold for herd immunity, but epidemic sizes drop more sharply.  At 60% vaccination rate, most epidemics do not affect more than 20% of the population.
 
-In reality, about 47% of Americans receive vaccines against influenza each year [cite: http://thenationshealth.aphapublications.org/content/47/9/E45].  According to this model, this should be enough to reduce the impact of the disease, but not prevent its spread entirely.  Qualitatively, this seems to be true [cite: https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/486407], but given the model's limited scope, it is difficult to evaluate quantitative accuracy.
+In reality, about 47% of Americans receive vaccines against influenza each year (Bergman, 2017).  According to this model, this should be enough to reduce the impact of the disease, but not prevent its spread entirely.  Qualitatively, this seems to be true (Simonsen et al., 2005), but given the model's limited scope, it is difficult to evaluate quantitative accuracy.
 
 ## Source Code
 
 The source code is available at [ref: our Github], and can be run online at [ref: Binder].  
+
+## References
+
+Salathé, M., Kazandjieva, M., Lee, J. W., Levis, P., Feldman, M. W., & Jones, J. H. (2010). A high-resolution human contact network for infectious disease transmission. _Proceedings for the National Academy of Sciences, 107(51)_, pp. 22020-22025.
+
+Center for Disease Control. (Last reviewed 2019, Sep. 5). Summary of the 2017-2018 Influenza Season. https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm
+
+Kermack, W.O. & McKendrick, A. G. (1927). A contribution to the mathematical theory of epidemics. _Proceedings of the Royal Society of London, 115_(772), pp. 700-721.
+
+Kamp, C., Moslonka-Lefebvre, M., & Alizon, S. (2013). Epidemic spread on weighted networks. _PLoS computational biology, 9_(12), e1003352. doi:10.1371/journal.pcbi.1003352
+
+Bergman, R. (2017). CDC: Fewer than half of Americans get flu vaccine. http://thenationshealth.aphapublications.org/content/47/9/E45
+
+Simonsen L, Reichert TA, Viboud C, Blackwelder WC, Taylor RJ, Miller MA. (2005). Impact of Influenza Vaccination on Seasonal Mortality in the US Elderly Population. _Arch Intern Med. 165_(3), pp. 265-272. doi:10.1001/archinte.165.3.265
