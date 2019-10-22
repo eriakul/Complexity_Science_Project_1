@@ -416,11 +416,11 @@ if __name__ == "__main__":
         plt.savefig("ensemble.png")
 
     if False:  # Make vaccination quantile graph
-        rates = np.arange(0, 1.0001, 0.1)
+        rates = np.arange(0, 1.0001, 0.05)
         quantiles = {0.20: [], 0.30: [], 0.40: [], 0.50: [], 0.60: []}
         frac_25, frac_50, frac_75 = [], [], []
         for rate in rates:
-            epidemics = parallel_epidemics(6, False, rate)
+            epidemics = parallel_epidemics(1024, False, rate)
             sizes = [size for (size, _, _) in epidemics]
             for q in quantiles:
                 quantiles[q].append(np.mean([q < size for size in sizes]))
