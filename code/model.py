@@ -270,7 +270,6 @@ def test_epidemic(
     times = []
     history = {state: [] for state in State}
 
-    epidemic_size = 0
     took_too_long = True
 
     for i in range(max_steps):
