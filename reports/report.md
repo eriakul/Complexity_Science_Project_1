@@ -44,6 +44,7 @@ Figure 1: Graph from the paper by Salethé et al. The gray lines are infected pe
 We ran our simulation 100 times and plotted our results below (note the truncated Y axis). 
 
 ![Visualization of infection in our model](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/ensemble.png)
+
 Figure 2: Our reproduction of the graph by Salethé et al.
 
 While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, we see that the scale of our graph's x-axis is much larger than Salathé's. Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. Another difference is that Salathé's epidemics at most affects about 25 percent of the school's population while our model shows an average of 30 percent people getting infected for the majority of the runs. These disparities may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé provides no units in his calculation for the incubation period between the _exposed_ and _infectious_ states.
