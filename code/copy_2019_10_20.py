@@ -249,70 +249,11 @@ all_groups = {(s, j): None for s in State for j in Job}
 edges, people = load_data_from_drive()
 
 
-if False:  # Don't graph
-    Sch = School(edges, people)
-
-    time = []  # Times of steps, in days
-    histories = {
-        g: [] for g in all_groups
-    }  # How many people in 'group' were in 'state'?
-
-    Sch.randomly_expose()
-
-    for i in range(100):  # Length is capped at that many ticks
-        time.append(i / 2)
-
-        global_state = Sch.get_global_state_jobs()
-
-        for group in all_groups:
-            histories[group].append(global_state[group])
-
-        # If nobody is exposed or infected, the epidemic is over.
-        if all(
-            map(
-                lambda g: global_state[g] == 0,
-                [(s, j) for s in [State.E, State.I] for j in Job],
-            )
-        ):
-            print("The epidemic is over on day {}.".format(i / 2))
-            break
-
-        Sch.step(i)
-
-    def plot_all_states(job, ax):
-        for s in State:
-            ys = histories[(s, job)]
-            color = Sch.state_color(s)
-            ax.plot(time, ys, color=color, label=s.value)
-
-    f, (axStudent, axTeacher, axStaff, axOther) = plt.subplots(
-        1, 4, sharex=True, sharey=False, figsize=(25, 4)
-    )
-
-    axStudent.set_title("Students")
-    plot_all_states(Job.S, axStudent)
-
-    axTeacher.set_title("Teachers")
-    plot_all_states(Job.T, axTeacher)
-
-    axStaff.set_title("Staff")
-    plot_all_states(Job.A, axStaff)
-
-    axOther.set_title("Other")
-    plot_all_states(Job.O, axOther)
-
-    axStudent.set_xlabel("Time (Days)")
-    axStudent.set_ylabel("People")
-
-    axOther.legend(loc="best")
-    plt.show()
-
-
 def test_epidemic(
     do_history=True,
     seed=None,
     vaccination_rate=0,
-    epidemic_threshold=0.5,
+    epidemic_threshold=0.75,
     max_steps=1000,
 ):
 
@@ -328,7 +269,7 @@ def test_epidemic(
     times = []
     history = {state: [] for state in State}
 
-    epidemic_happened = False
+    epidemic_size = 0
     took_too_long = True
 
     for i in range(max_steps):
@@ -344,14 +285,12 @@ def test_epidemic(
         current_infected = global_state[State.E] + global_state[State.I]
         current_recovered = global_state[State.R] - total_immune
         if current_infected == 0:
-            epidemic_happened = False
             took_too_long = False
             break
         if (
             epidemic_threshold
             <= (current_infected + current_recovered) / total_susceptible
         ):
-            epidemic_happened = True
             took_too_long = False
             if not do_history:
                 break
@@ -361,7 +300,7 @@ def test_epidemic(
             "Epidemic took more than " + str(max_steps) + " steps to fail or succeed"
         )
     else:
-        return epidemic_happened, times, history
+        return (current_infected + current_recovered) / len(people), times, history
 
 
 class EpidemicTester:  # A pickle-able version of test_epidemic so we can parallelize
@@ -397,35 +336,103 @@ def parallel_epidemics(
     )
 
 
-if False:  # Don't make ensemble graph
-    epidemics = parallel_epidemics(100, True, 0)
-
-    histories = [(times, history) for (_, times, history) in epidemics]
-
-    plt.figure(figsize=(8, 6))
-
-    for times, history in histories:
-        infected = np.array(history[State.E]) + np.array(history[State.I])
-        plt.plot(times, infected, color="black", alpha=0.15)
-
-    plt.xlabel("Time (days)")
-    plt.ylabel("Number of infected people")
-    plt.title("100 epidemics (no vaccination)")
-    plt.savefig("ensemble.pdf")
-
 if __name__ == "__main__":
-    rates = np.arange(0, 1.0001, 0.1)
-    results = []
-    for rate in rates:
-        epidemics = parallel_epidemics(16, False, rate)
-        results.append(np.mean([happened for (happened, _, _) in epidemics]))
-        print(rate, results[-1])
 
-    plt.figure(figsize=(8, 6))
+    if False:  # Make a single graph
+        Sch = School(edges, people)
 
-    plt.plot(rates, results)  # Plot the data
+        time = []  # Times of steps, in days
+        histories = {
+            g: [] for g in all_groups
+        }  # How many people in 'group' were in 'state'?
 
-    plt.xlabel("Fraction vaccinated")
-    plt.ylabel("Likelihood of epidemic (>50% of susceptible infected)")
-    plt.title("Impact of vaccination on disease spread")
-    plt.savefig("vacc_hist.pdf")
+        Sch.randomly_expose()
+
+        for i in range(100):  # Length is capped at that many ticks
+            time.append(i / 2)
+
+            global_state = Sch.get_global_state_jobs()
+
+            for group in all_groups:
+                histories[group].append(global_state[group])
+
+            # If nobody is exposed or infected, the epidemic is over.
+            if all(
+                map(
+                    lambda g: global_state[g] == 0,
+                    [(s, j) for s in [State.E, State.I] for j in Job],
+                )
+            ):
+                print("The epidemic is over on day {}.".format(i / 2))
+                break
+
+            Sch.step(i)
+
+        def plot_all_states(job, ax):
+            for s in State:
+                ys = histories[(s, job)]
+                color = Sch.state_color(s)
+                ax.plot(time, ys, color=color, label=s.value)
+
+        f, (axStudent, axTeacher, axStaff, axOther) = plt.subplots(
+            1, 4, sharex=True, sharey=False, figsize=(25, 4)
+        )
+
+        axStudent.set_title("Students")
+        plot_all_states(Job.S, axStudent)
+
+        axTeacher.set_title("Teachers")
+        plot_all_states(Job.T, axTeacher)
+
+        axStaff.set_title("Staff")
+        plot_all_states(Job.A, axStaff)
+
+        axOther.set_title("Other")
+        plot_all_states(Job.O, axOther)
+
+        axStudent.set_xlabel("Time (Days)")
+        axStudent.set_ylabel("People")
+
+        axOther.legend(loc="best")
+        plt.show()
+
+    if False:  # Make ensemble-ish graph
+        epidemics = parallel_epidemics(100, True, 0)
+
+        histories = [(times, history) for (_, times, history) in epidemics]
+
+        plt.figure(figsize=(8, 6))
+
+        for times, history in histories:
+            infected = np.array(history[State.E]) + np.array(history[State.I])
+            plt.plot(times, infected, color="black", alpha=0.15)
+
+        plt.xlabel("Time (days)")
+        plt.ylabel("Number of infected people")
+        plt.title("100 epidemics (no vaccination)")
+        plt.savefig("ensemble.png")
+
+    if True:  # Make vaccination quantile graph
+        rates = np.arange(0, 1.0001, 0.1)
+        quantiles = {0.25: [], 0.50: [], 0.75: []}
+        frac_25, frac_50, frac_75 = [], [], []
+        for rate in rates:
+            epidemics = parallel_epidemics(6, False, rate)
+            sizes = [size for (size, _, _) in epidemics]
+            print(sizes)
+            for q in quantiles:
+                quantiles[q].append(np.mean([q < size for size in sizes]))
+            print("Finished:", rate)
+
+        print(quantiles)
+
+        plt.figure(figsize=(8, 6))
+
+        for q, ys in quantiles.items():
+            plt.plot(rates, ys, label="{} infected".format(q))
+
+        plt.legend()
+        plt.xlabel("Fraction vaccinated")
+        plt.ylabel("Likelihood of epidemic (>50% of susceptible infected)")
+        plt.title("Impact of vaccination on disease spread")
+        plt.savefig("vacc_hist.png")
