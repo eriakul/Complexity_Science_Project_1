@@ -1,4 +1,4 @@
-# Epidemic Simulation Using Real-World Graph Shape
+# Epidemic Simulation Using Real-World Interaction Data
 Erika Lu and Adam Selker
 
 
