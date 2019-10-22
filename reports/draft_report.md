@@ -27,7 +27,7 @@ The author gives students and faculty at a high school wearable devices which tr
 
 In this paper, we replicate Salathé et al, and also add vaccinations to their model.  
 
-Using the (NetworkX library)[https://networkx.github.io/], we build the original model using data from Salathé et al. to generate a graph following these rules:
+Using the [NetworkX library](https://networkx.github.io/), we build the original model using data from Salathé et al. to generate a graph following these rules:
 - Nodes represent people and edges represent interactions between the nodes. The edges are weighted with the contact duration between two individuals (1 edge weight = 20 seconds).
 - Nodes are initialized with the state, "susceptible".
 - The simulation starts by exposing the disease to a random _susceptible_ individual. The individual becomes _exposed_. An _exposed_ person has an incubation period defined by a Weibull distribution, then moves on to the _infectious_ state.  
@@ -36,13 +36,15 @@ Using the (NetworkX library)[https://networkx.github.io/], we build the original
 
 ## Results
 
-Our reproduction results in data which match absentee rates gathered from the real high school [cite: Salathé, they show it in Fig. 4], and which differ [only slightly] from the results obtained by Salathé et al. 
+Salathé ran their SEIR model 1000 times and plotted the the percentage of infected individuals at every time step. 
 
 ![Visualization of infection by Salathé et al](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/TheirPlot.JPG)
 
-In figure [foo], the fraction of students who are infected rises and falls sharply in a manner which is consistent with real infection. 
-![Our SEIR](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/SubPlots.png)
-[ TODO: Results from our extension ]
+We ran our simulation 100 times and plotted our results below. 
+
+![Our graph](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/OurPlot.JPG)
+
+While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, we see that the scale of our graph's x-axis is much larger than Salathé's. Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. Another difference is that Salathé's epidemics only affect .25 percent of the school's population while our model usually shows an average of x people getting infected for the majority of the runs. This may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé provides no units in his calculation for the incubation period between the _exposed_ and _infectious_ states.
 
 ## Interpretation
 
