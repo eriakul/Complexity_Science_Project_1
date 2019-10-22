@@ -44,18 +44,15 @@ We ran our simulation 100 times and plotted our results below.
 
 ![Our graph](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/OurPlot.JPG)
 
-While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, we see that the scale of our graph's x-axis is much larger than Salathé's. Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. Another difference is that Salathé's epidemics only affect .25 percent of the school's population while our model usually shows an average of x people getting infected for the majority of the runs. This may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé provides no units in his calculation for the incubation period between the _exposed_ and _infectious_ states.
+While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, we see that the scale of our graph's x-axis is much larger than Salathé's. Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. Another difference is that Salathé's epidemics at most affects about 25 percent of the school's population while our model shows an average of 30 percent people getting infected for the majority of the runs. These disparities may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé provides no units in his calculation for the incubation period between the _exposed_ and _infectious_ states.
 
-## Interpretation
-
-The model seems accurate.  Though more research and broader data are needed to confirm its accuracy and test its applicability to different groups and situations, graph-based models that use real-world graph seem a promising tool.  More specifically, we note that vaccinating according to [some strategy] is [23%] more effective than vaccinating at random; if a vaccination campaign is used at a school or similar institution, this could be used to guide the effort.
+In terms of the validation of this model's use in simulating real life scenarious, it is clear that there are limitations. As seen with our recreation of the SEIR model, the outcomes of the model differ greatly even when using the same real-world data. There are many assumed parameters (such as the recovery time distribution) that affect the accuracy of the results. Though more research and broader data are needed to confirm its accuracy and test its applicability to different groups and situations, graph-based models that use real-world graph seem a promising tool.
 
 One limitation of this model is that it requires real-world data.  Using this method, unmodified, to simulate a nation- or world-wide epidemic would be infeasible, since it would require millions, or billions, of people to wear transponders.  Some amount of graph generation or approximation could be used, producing a hybrid model which could be more accurate than existing algorithmically-generated graphs but still feasible.
 
 Another, related limitation is that the data is collected over a single day.  Day-to-day interaction patterns vary, and so there will be noise in the data if only one day is analyzed.  Again, doing this perfectly would require an arbitrarily large investment, but approximations could be made.  For instance, transponders could be worn on a few days distributed across a year, and interaction frequencies could be averaged across the different datasets.
 
 [ TODO: More on this, and on outside interactions, limitations of SEIR model, computational feasability]
-
 
 
 # Extension
