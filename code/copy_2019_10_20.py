@@ -395,9 +395,9 @@ if __name__ == "__main__":
         axStudent.set_ylabel("People")
 
         axOther.legend(loc="best")
-        plt.show()
+        plt.savefig("single_shot_graph.png")
 
-    if False:  # Make ensemble-ish graph
+    if True:  # Make ensemble-ish graph
         epidemics = parallel_epidemics(100, True, 0)
 
         histories = [(times, history) for (_, times, history) in epidemics]
@@ -405,20 +405,22 @@ if __name__ == "__main__":
         plt.figure(figsize=(8, 6))
 
         for times, history in histories:
-            infected = np.array(history[State.E]) + np.array(history[State.I])
+            infected = (np.array(history[State.E]) + np.array(history[State.I])) / len(
+                people
+            )
             plt.plot(times, infected, color="black", alpha=0.15)
 
         plt.xlabel("Time (days)")
-        plt.ylabel("Number of infected people")
+        plt.ylabel("Fraction of infected people")
         plt.title("100 epidemics (no vaccination)")
         plt.savefig("ensemble.png")
 
-    if True:  # Make vaccination quantile graph
-        rates = np.arange(0, 1.0001, 0.1)
+    if False:  # Make vaccination quantile graph
+        rates = np.arange(0, 1.0001, 0.05)
         quantiles = {0.20: [], 0.30: [], 0.40: [], 0.50: [], 0.60: []}
         frac_25, frac_50, frac_75 = [], [], []
         for rate in rates:
-            epidemics = parallel_epidemics(6, False, rate)
+            epidemics = parallel_epidemics(1024, False, rate)
             sizes = [size for (size, _, _) in epidemics]
             for q in quantiles:
                 quantiles[q].append(np.mean([q < size for size in sizes]))
