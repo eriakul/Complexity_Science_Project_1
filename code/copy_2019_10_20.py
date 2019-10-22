@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
     if True:  # Make vaccination quantile graph
         rates = np.arange(0, 1.0001, 0.1)
-        quantiles = {0.25: [], 0.50: [], 0.75: []}
+        quantiles = {0.20: [], 0.30: [], 0.40: [], 0.50: [], 0.60: []}
         frac_25, frac_50, frac_75 = [], [], []
         for rate in rates:
             epidemics = parallel_epidemics(6, False, rate)
@@ -430,7 +430,7 @@ if __name__ == "__main__":
         plt.figure(figsize=(8, 6))
 
         for q, ys in quantiles.items():
-            plt.plot(rates, ys, label="{} infected".format(q))
+            plt.plot(rates, ys, label="{}% infected".format(100 * q))
 
         plt.legend()
         plt.xlabel("Fraction vaccinated")
