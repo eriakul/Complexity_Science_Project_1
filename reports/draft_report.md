@@ -18,9 +18,9 @@ In "A high-resolution human contact network for infectious disease transmission,
 
 An SEIR model is an example of a compartmental model, a group of models proposed in "A Contribution to the Mathematical Theory of Epidemics" (Kermack & McKendrick, 1927).  In the model, each individual is in one of four states. A _susceptible_ individual is not immune to the infection, but has not yet been exposed.  An _exposed_ individual has been exposed to the infection, but is not yet contagious.  An _infectious_ individual is capable to transmitting the infection to others.  A _recovered_ individual is immune, or highly resistant to the infection.  
 
-A mathematical graph consists of nodes connected by edges.  Each node represents an individual, each edge represents contact between two individuals.  Edges are _weighted_, representing the frequency and duration of contact between the individuals.  The use of graphs with compartmental models to represent disease spread is not novel to Salathé [TODO: Cite].  However, the graphs are usually built using an algorithm.  Instead, the author of this paper uses real data collected at a school to build the graph directly.
+A mathematical graph consists of nodes connected by edges.  Each node represents an individual, each edge represents contact between two individuals.  Edges are _weighted_, representing the frequency and duration of contact between the individuals.  The use of graphs with compartmental models to represent disease spread is not novel to Salathé et al. [TODO: Cite].  However, the graphs are usually built using an algorithm.  Instead, the authors of this paper use real data collected at a school to build the graph directly.
 
-The author gives students and faculty at a high school wearable devices which track close interactions.  Using this data, they build a graph representing the school, where each tracking device is a node and each edge is weighted based on the duration during which two trackers were in close proximity (3 m).
+The authors give students and faculty at a high school wearable devices which track close interactions.  Using this data, they build a graph representing the school, where each tracking device is a node and each edge is weighted based on the duration during which two trackers were in close proximity (3 m).
 
 
 ## Procedure
@@ -36,7 +36,7 @@ Using the [NetworkX library](https://networkx.github.io/), we build the original
 
 ## Results
 
-Salathé ran their SEIR model 1000 times and plotted the the percentage of infected individuals at every time step. 
+Salathé et al. ran their SEIR model 1000 times and plotted the percentage of infected individuals at every time step. 
 
 ![Visualization of infection by Salathé et al](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/TheirPlot.JPG)
 
@@ -50,7 +50,12 @@ While both figures see the fraction of students who are infected rise and fall s
 
 The model seems accurate.  Though more research and broader data are needed to confirm its accuracy and test its applicability to different groups and situations, graph-based models that use real-world graph seem a promising tool.  More specifically, we note that vaccinating according to [some strategy] is [23%] more effective than vaccinating at random; if a vaccination campaign is used at a school or similar institution, this could be used to guide the effort.
 
-One limitation of this model is that it requires real-world data.  [ TODO: More on this, and on outside interactions, limitations of SEIR model, computational feasability]
+One limitation of this model is that it requires real-world data.  Using this method, unmodified, to simulate a nation- or world-wide epidemic would be infeasible, since it would require millions, or billions, of people to wear transponders.  Some amount of graph generation or approximation could be used, producing a hybrid model which could be more accurate than existing algorithmically-generated graphs but still feasible.
+
+Another, related limitation is that the data is collected over a single day.  Day-to-day interaction patterns vary, and so there will be noise in the data if only one day is analyzed.  Again, doing this perfectly would require an arbitrarily large investment, but approximations could be made.  For instance, transponders could be worn on a few days distributed across a year, and interaction frequencies could be averaged across the different datasets.
+
+[ TODO: More on this, and on outside interactions, limitations of SEIR model, computational feasability]
+
 
 
 # Extension
