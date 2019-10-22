@@ -261,6 +261,7 @@ def test_epidemic(
     school = School(edges, people)
 
     school.randomly_vaccinate(vaccination_rate)
+    # school.randomly_vaccinate(vaccination_rate, success_rate=1)
     school.randomly_expose()
 
     total_susceptible = school.get_global_state()[State.S]
@@ -419,11 +420,11 @@ if __name__ == "__main__":
         for rate in rates:
             epidemics = parallel_epidemics(6, False, rate)
             sizes = [size for (size, _, _) in epidemics]
-            print(sizes)
             for q in quantiles:
                 quantiles[q].append(np.mean([q < size for size in sizes]))
             print("Finished:", rate)
 
+        print("Quantiles:")
         print(quantiles)
 
         plt.figure(figsize=(8, 6))
@@ -433,6 +434,7 @@ if __name__ == "__main__":
 
         plt.legend()
         plt.xlabel("Fraction vaccinated")
-        plt.ylabel("Likelihood of epidemic (>50% of susceptible infected)")
+        # plt.xlabel("Fraction vaccinated (100% effectiveness)")
+        plt.ylabel("Likelihood of epidemic reaching size")
         plt.title("Impact of vaccination on disease spread")
         plt.savefig("vacc_hist.png")
