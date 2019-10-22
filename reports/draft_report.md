@@ -43,7 +43,7 @@ Figure 1: Graph from the paper by Salethé et al. The gray lines are infected pe
 
 We ran our simulation 100 times and plotted our results below (note the truncated Y axis). 
 
-![Our graph](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/ensemble.png)
+![Visualization of infection in our model](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/ensemble.png)
 Figure 2: Our reproduction of the graph by Salethé et al.
 
 While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, we see that the scale of our graph's x-axis is much larger than Salathé's. Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. Another difference is that Salathé's epidemics at most affects about 25 percent of the school's population while our model shows an average of 30 percent people getting infected for the majority of the runs. These disparities may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé provides no units in his calculation for the incubation period between the _exposed_ and _infectious_ states.
@@ -56,17 +56,19 @@ Another, related limitation is that the data is collected over a single day.  Da
 
 # Extension
  
-To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  In accordance with the CDC's findings [cite], vaccinations are about 40% effective, so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
+To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  Influenza vaccines are about 40% effective [cite: https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm], so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
  
 We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested what fraction of the population was infected before the disease died out.  The results of the simulations are presented in figure $n.
 
-[ Vaccine hist goes here ]
+[!Epidemic size frequencies varying with vaccination rates](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/vacc_hist.png)
 
-Though the trend is clear, the effect is only moderate, and there is no clear cutoff for "herd immunity".  With no immunity, the epidemic usually reaches between 50% and 60% of the population.  With perfect vaccination, it reaches between 30% and 40%.  The limited effect is due to the low effectiveness of the vaccine; see figure $n.
+Though the trend is clear, the effect is only moderate, and there is no clear cutoff for "herd immunity".  With no immunity, the epidemic usually reaches between 50% and 60% of the population.  With perfect vaccination, it reaches between 30% and 40%.  The limited effect is due to the low effectiveness of the vaccine; see figure $n, which visualizes the same model but with 100%-effective vaccines.
 
-[ Perfect vacc hist goes here ]
+[!Vaccination impact when vaccines are perfectly effective](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/vacc_hist_perfect_vaccine.png)
 
-About 47% of Americans receive vaccines against influenza each year [cite: http://thenationshealth.aphapublications.org/content/47/9/E45].  According to this model, this should be enough to reduce the impact of the disease, but not prevent its spread entirely.  This seems to be true [cite: 
+When the vaccine is perfectly effective, there is still no distinct threshold for herd immunity, but epidemic sizes drop more sharply.  At 60% vaccination rate, most epidemics do not affect more than 20% of the population.
+
+In reality, about 47% of Americans receive vaccines against influenza each year [cite: http://thenationshealth.aphapublications.org/content/47/9/E45].  According to this model, this should be enough to reduce the impact of the disease, but not prevent its spread entirely.  Qualitatively, this seems to be true [cite: https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/486407], but given the model's limited scope, it is difficult to evaluate quantitative accuracy.
 
 ## Source Code
 
