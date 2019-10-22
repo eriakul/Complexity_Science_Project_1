@@ -32,11 +32,11 @@ Using the [NetworkX library](https://networkx.github.io/), we build the original
 - Nodes are initialized in the _susceptible_ state.
 - The simulation starts by exposing the disease to a random _susceptible_ individual. The individual becomes _exposed_. An _exposed_ person goes through an incubation period defined by a Weibull distribution (power parameter 2.21, scale factor 1.10), and then moves on to the _infectious_ state.  
 - At every time step (12 hours), the _infectious_ individuals have a chance of probability p of exposing the disease to their neighboring nodes. The probability of exposure is defined by p = 1 - (1 - 0.003)<sup>(.25 * edge\_weight)</sup>. 
-- At every time step (12 hours), previously _infectious_ individuals become _recovered_ and will no longer spread the disease. This simulates the individual leaving school within half a day. 
+- Also at every time step, previously _infectious_ individuals become _recovered_ with probability p = 1 - 0.95<sup>t</sup>, where t is the number of time steps the individual has been _infectious_.
 
 ## Results
 
-Salathé et al. ran their SEIR model 1000 times and plotted the percentage of infected individuals at every time step. 
+Salathé et al. ran their SEIR model 1000 times and plotted the percentage of infected individuals at every time step (note the truncated Y axis). 
 
 ![Visualization of infection by Salathé et al](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/TheirPlot.JPG)
 Figure 1: Graph from the paper by Salethé et al. The gray lines are infected people per run. The red lines represent absentee data.
@@ -47,9 +47,7 @@ We ran our simulation 100 times and plotted our results below (note the truncate
 
 Figure 2: Our reproduction of the graph by Salethé et al.
 
-While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, we see that the scale of our graph's x-axis is much larger than Salathé's. Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. Another difference is that Salathé's epidemics at most affects about 25 percent of the school's population while our model shows an average of 30 percent people getting infected for the majority of the runs. These disparities may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé provides no units in his calculation for the incubation period between the _exposed_ and _infectious_ states.
-
-In terms of the validation of this model's use in simulating real life scenarious, it is clear that there are limitations. As seen with our recreation of the SEIR model, the outcomes of the model differ greatly even when using the same real-world data. There are many assumed parameters (such as the recovery time distribution) that affect the accuracy of the results. Though more research and broader data are needed to confirm its accuracy and test its applicability to different groups and situations, graph-based models that use real-world graph seem a promising tool.
+While both figures see the fraction of students who are infected rise and fall sharply in a manner that is consistent with real infection, our epidemics infect more people, and run longer, than Salathé's.  Most of our epidemics run to be about 30 days until the last infected individual recovers, while the majority of theirs runs for 10 days. At their peaks, Salathé's epidemics affect about 15% of the school's population; ours affect about 30%. These disparities may be due to differences in certain parameters that weren't specified in the paper. For example, Salathé et al. provide no units for the incubation period between the _exposed_ and _infectious_ states; we assumed the units were time steps, but they may be hours or days.
 
 One limitation of this model is that it requires real-world data.  Using this method, unmodified, to simulate a nation- or world-wide epidemic would be infeasible, since it would require millions, or billions, of people to wear transponders.  Some amount of graph generation or approximation could be used, producing a hybrid model which could be more accurate than existing algorithmically-generated graphs but still feasible.
 
@@ -57,7 +55,7 @@ Another, related limitation is that the data is collected over a single day.  Da
 
 ## Vaccinations
  
-To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  Influenza vaccines are about 40% effective [cite: https://www.cdc.gov/flu/about/season/flu-season-2017-2018.htm], so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
+To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  Influenza vaccines are about 40% effective (Center for Disease Control, 2019), so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
  
 We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested what fraction of the population was infected before the disease died out.  The results of the simulations are presented in Figure 3.
 
