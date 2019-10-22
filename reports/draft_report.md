@@ -40,7 +40,7 @@ Salathé et al. ran their SEIR model 1000 times and plotted the percentage of in
 
 ![Visualization of infection by Salathé et al](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/TheirPlot.JPG)
 
-We ran our simulation 100 times and plotted our results below. 
+We ran our simulation 100 times and plotted our results below (note the truncated Y axis). 
 
 ![Our graph](https://github.com/eriakul/Complexity_Science_Project_1/blob/master/reports/OurPlot.JPG)
 
@@ -59,16 +59,15 @@ Another, related limitation is that the data is collected over a single day.  Da
  
 To test the effectiveness of vaccination at creating herd immunity, we added random vaccination to the model.  A configurable fraction of the population is randomly selected to be "vaccinated".  In accordance with the CDC's findings [cite], vaccinations are about 40% effective, so 40% of individuals selected to be vaccinated are made immune by placing them in the Recovered state.
  
-We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested whether the infection spread to 50% of the susceptible population before it died out.  The results of the simulations are presented in figure $n (note the truncated Y axis).
+We ran 22,528 simulations with varying fractions vaccinated, and in each simulation tested what fraction of the population was infected before the disease died out.  The results of the simulations are presented in figure $n.
 
-[ Graph goes here ]
+[ Vaccine hist goes here ]
 
-Though the trend is clear (r = -0.97, p < 10<sup>6</sup>), the effect is surprisingly small.  With perfect vaccination, the likelihood of an epidemic that reaches most of the susceptible population drops from about 75% to about 61%.  Herd immunity has not been reached, due to the low effectiveness of the vaccine.  When the vaccine is perfectly effective, herd immunity is reached with about X% coverage; see figure $n.
+Though the trend is clear, the effect is only moderate, and there is no clear cutoff for "herd immunity".  With no immunity, the epidemic usually reaches between 50% and 60% of the population.  With perfect vaccination, it reaches between 30% and 40%.  The limited effect is due to the low effectiveness of the vaccine; see figure $n.
 
-[ Graph goes here ]
+[ Perfect vacc hist goes here ]
 
-[TODO: Is this consistent with IRL?]
-
+About 47% of Americans receive vaccines against influenza each year [cite: http://thenationshealth.aphapublications.org/content/47/9/E45].  According to this model, this should be enough to reduce the impact of the disease, but not prevent its spread entirely.  This seems to be true [cite: 
 
 ## Source Code
 
