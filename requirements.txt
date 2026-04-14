@@ -1,4 +1,4 @@
 numpy==1.16.*
 matplotlib==3.*
-gdown ==3.8.3
+gdown ==5.2.2
 networkx==2.4
